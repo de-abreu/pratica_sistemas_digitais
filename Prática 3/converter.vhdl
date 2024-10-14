@@ -4,7 +4,7 @@ use ieee.NUMERIC_STD.all;
 
 entity converter is
     port (
-        index         : in std_logic_vector(0 to 2);
+        index         : in  std_logic_vector(2 downto 0);
         set, clk, rst : in  std_logic := '0';
         led           : out std_logic
          );
@@ -53,14 +53,13 @@ begin
             state := IDLE;
             delay <= 0;
         -- Set (transition to a given printing state)
-        elsif set = '1' then
+        elsif rising_edge(set) then
             state := to_integer(unsigned(index));
             i := 0;
             delay <= 0;
 
-        -- Synchronous processes --
-        -- Triggered whenever clk changes value
-        elsif state /= IDLE then
+        -- Synchronous processes : triggered whenever clk changes value
+        elsif rising_edge(clk) and state /= IDLE then
             -- Check if there is a delay in place.
             if delay > 0 then
                 delay <= delay - 1;
@@ -68,7 +67,7 @@ begin
             elsif i = length(state) then
                 state := IDLE;
             -- Set the delay accordingly
-            elsif rising_edge(clk) then
+            else
                 delay <= 1 when morse_table(state)(i) = '0' else 3;
                 i := i + 1;
             end if;

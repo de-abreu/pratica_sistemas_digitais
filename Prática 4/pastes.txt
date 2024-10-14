@@ -1,0 +1,4 @@
+D6NGU <- Memória
+1331709 <- Testbench (paste.debian.net)
+RNEPS <- Hex Display
+
