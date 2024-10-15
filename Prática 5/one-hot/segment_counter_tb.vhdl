@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.state_t.all;
 
 entity testbench is
 end testbench;
@@ -9,20 +10,16 @@ architecture Behavioral of testbench is
 
     -- Component declaration for the segment_counter
     component segment_counter_one_hot is
-        generic (
-            length : integer := 4
-        );
-        port (
-            input, clk, rst : in std_logic := '0';
-            output : out std_logic
-        );
+    port (
+        input, clk, rst : in  std_logic := '0';
+        output          : out std_logic;
+        s               : out state
+     );
     end component;
 
     -- Signals for the testbench
-    signal input  : std_logic := '0';
-    signal clk    : std_logic := '0';
-    signal rst    : std_logic := '0';
-    signal output : std_logic;
+    signal input, clk, rst, output  : std_logic := '0';
+    signal s : state;
 
     -- Clock period constant
     constant clk_period : time := 10 ns;
@@ -31,32 +28,28 @@ begin
 
     -- Instantiate the segment_counter unit under test (UUT)
     uut : segment_counter_one_hot
-    generic map(
-        length => 4
-    )
     port map (
         input => input,
         clk => clk,
         rst => rst,
-        output => output
+        output => output,
+        s => s
     );
 
     -- Clock generation process
     clk_process : process
     begin
-        clk <= '0';
         wait for clk_period / 2;
-        clk <= '1';
-        wait for clk_period / 2;
+        clk <= not clk;
     end process;
 
     -- Test process to simulate different conditions
     test_process : process
     begin
         -- Initial reset
-        rst <= '1';
-        wait for clk_period * 2;
         rst <= '0';
+        wait for clk_period * 2;
+        rst <= '1';
         wait for clk_period * 2;
 
         -- Test 1: Segment shorter than 4 bits (3 bits of '0')
@@ -86,10 +79,10 @@ begin
         wait for clk_period * 2;
 
         -- Test 5: Reset test
-        rst <= '1';
+        rst <= '0';
         wait for clk_period * 2;
         assert output = '0' report "Failed: Output should be '0' after reset" severity error;
-        rst <= '0';
+        rst <= '1';
         wait for clk_period * 2;
 
         -- End of simulation
