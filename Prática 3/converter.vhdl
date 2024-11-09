@@ -7,7 +7,7 @@ entity converter is
         index         : in  std_logic_vector(2 downto 0);
         set, clk, rst : in  std_logic;
         led           : out std_logic
-         );
+        );
 end converter;
 
 architecture Behaviour of converter is
