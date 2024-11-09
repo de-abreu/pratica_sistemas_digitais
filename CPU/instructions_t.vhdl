@@ -5,7 +5,7 @@ use ieee.NUMERIC_STD.all;
 package instructions_t is
 
     -- Instruction format
-    -- | func    | rs1 | rs2 |
+    -- | func    | rs0 | rs1 |
     -- | 7 6 5 4 | 3 2 | 1 0 |
 
     -- Lengths and address to indicate immediate values
@@ -18,8 +18,8 @@ package instructions_t is
     type inst_r is range 7 downto 0;
     type func_r is range 7 downto 4;
     type reg_r  is range 1 downto 0;
-    type rs1_r  is range 3 downto 2;
-    type rs2_r  is range 1 downto 0;
+    type rs0_r  is range 3 downto 2;
+    type rs1_r  is range 1 downto 0;
     subtype addressable is natural range 0 to 2 ** inst_l - 1;
 
     -- Function enumeration
