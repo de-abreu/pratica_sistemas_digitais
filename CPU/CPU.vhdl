@@ -13,14 +13,16 @@ entity CentralProcessingUnit is
 end entity CentralProcessingUnit;
 
 architecture Structural of CentralProcessingUnit is
-    type state is (fetch, decode, execute);
+    type state is (fetch, decode, immediate, execute);
     signal ir : func;
-    signal rs, ops : vector_array(0 to 1)(reg_r);
+    signal rs : vector_array(0 to 1)(reg_r);
+    signal ops : vector_array(0 to 1)(inst_r);
     signal rd : std_logic_vector(reg_r);
     signal alu_b, alu_out, address, data_out, wdata : std_logic_vector(inst_r);
-    signal alu_enable, mem_write, mem_to_reg, zero, signal_bit, overflow : std_logic;
+    signal input_enable, mem_write, zero, signal_bit, overflow : std_logic;
 
     component Registers is
+        generic (width, count : integer);
         port (
             rs    : in  vector_array(0 to 1)(reg_r);
             rd    : in  std_logic_vector(reg_r);
@@ -49,6 +51,10 @@ architecture Structural of CentralProcessingUnit is
 
 begin
     regs : Registers
+        generic map (
+            width => inst_l,
+            count => 2 ** reg_l
+        )
         port map (
             rs    => rs,
             rd    => rd,
@@ -74,6 +80,13 @@ begin
             result => alu_out
         );
 
+    confirm : process(set)
+    begin
+        if rising_edge(set) then
+            input_enable <= '1';
+        end if;
+    end process confirm;
+
     ControlUnit: process(clk, rst)
         variable next_state : state := fetch;
         variable pc : addressable := 0;
@@ -83,17 +96,18 @@ begin
             pc := 0;
 
         elsif rising_edge(clk) then
-
-            -- Fetch next instruction at the memory address pointed at by PC
-            if next_state = fetch then
-                mem_write <= '0';
-                address <= std_logic_vector(to_unsigned(pc, address'length));
-                ir <= to_func(data_out(func_r));
-                pc := pc + 1;
-                next_state := decode;
+            case next_state is
+                when fetch => -- Fetch next instruction at the memory address pointed at by PC
+                    mem_write <= '0';
+                    address <= std_logic_vector(to_unsigned(pc, address'length));
+                    ir <= to_func(data_out(func_r));
+                    pc := pc + 1;
+                    next_state := decode;
 
              -- Assign control signals, divert data flow, fetch immediate values
-            elsif next_state = decode then
+            when decode =>
+                -- Reset the input_enable control signal
+                input_enable <= '0';
 
                 -- Configure register bank
                 rs(0) <= data_out(rs0_r);
@@ -102,43 +116,50 @@ begin
                     rd <= data_out(rs0_r) when LOAD | DIN | MOV,
                           "10"            when others;
 
-                -- Configure ALU
-                if data_out(rs1_r) /= imm then
-                    alu_b <= ops(1);
+                -- Configure ALU and determine the next state
+                if data_out(rs1_r) = imm then
+                    next_state := immediate;
                 else
-                    wait until rising_edge(clk);
-                    address <= std_logic_vector(to_unsigned(pc, address'length));
-                    alu_b <= data_out;
-                    pc := pc + 1;
+                    alu_b <= ops(1);
+                    next_state := execute;
                 end if;
-
-            -- Execute next instruction
-            else
+            when immediate =>
+                address <= std_logic_vector(to_unsigned(pc, address'length));
+                alu_b <= data_out;
+                pc := pc + 1;
+            when others => -- Execute next instruction
                 case ir is
                     when ADD | SUB | LAND | LOR | LNOT | MOV =>
                         wdata <= alu_out;
+                        next_state := fetch;
                     when JMP =>
                         pc := to_integer(unsigned(data_out));
+                        next_state := fetch;
                     when JEQ =>
                         pc := to_integer(unsigned(data_out)) when zero = '1' else pc;
+                        next_state := fetch;
                     when JGR =>
                         pc := to_integer(unsigned(data_out)) when signal_bit = '1' else pc;
+                        next_state := fetch;
                     when STORE =>
                         address <= alu_out;
                         mem_write <= '1';
+                        next_state := fetch;
                     when LOAD =>
                         address <= alu_out;
                         wdata <= data_out;
+                        next_state := fetch;
                     when DIN =>
-                        wait until rising_edge(set);
-                        wdata <= input;
+                        if input_enable = '1' then
+                            wdata <= input;
+                            next_state := fetch;
+                        end if;
                     when DOUT =>
                         output <= alu_out;
+                        next_state := fetch;
                     when others => --HALT
-                        wait;
                 end case;
-                next_state := fetch;
-            end if;
+            end case;
         end if;
     end process ControlUnit;
 end architecture Structural;

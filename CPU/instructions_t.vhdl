@@ -15,12 +15,12 @@ package instructions_t is
     constant imm : std_logic_vector(1 downto 0) := "11";
 
     -- Ranges
-    type inst_r is range 7 downto 0;
-    type func_r is range 7 downto 4;
-    type reg_r  is range 1 downto 0;
-    type rs0_r  is range 3 downto 2;
-    type rs1_r  is range 1 downto 0;
+    subtype inst_r is natural range 7 downto 0;
+    subtype func_r is natural range 7 downto 4;
+    subtype rs0_r  is natural range 3 downto 2;
+    subtype rs1_r  is natural range 1 downto 0;
     subtype addressable is natural range 0 to 2 ** inst_l - 1;
+    alias reg_r is rs1_r;
 
     -- Function enumeration
     type func is (
@@ -30,8 +30,7 @@ package instructions_t is
         JMP, JEQ, JGR,   -- Jump
         LOAD, STORE,     -- Memory access
         DIN, DOUT,       -- I/O
-        MOV,
-        HALT
+        MOV, HALT
     );
 
     -- Function encoding
@@ -45,6 +44,6 @@ end package instructions_t;
 package body instructions_t is
     pure function to_func(vec : std_logic_vector(3 downto 0)) return func is
     begin
-        return func'val(to_integer(unsigned(vec(func_r))));
+        return func'val(to_integer(unsigned(vec)));
     end function to_func;
 end package body instructions_t;
