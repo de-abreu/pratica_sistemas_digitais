@@ -86,6 +86,7 @@ begin
 
             -- Fetch next instruction at the memory address pointed at by PC
             if next_state = fetch then
+                mem_write <= '0';
                 address <= std_logic_vector(to_unsigned(pc, address'length));
                 ir <= to_func(data_out(func_r));
                 pc := pc + 1;
@@ -111,10 +112,6 @@ begin
                     pc := pc + 1;
                 end if;
 
-                -- Configure Memory
-                mem_write <= '1' when ir = STORE else '0';
-                next_state := execute;
-
             -- Execute next instruction
             else
                 case ir is
@@ -126,8 +123,12 @@ begin
                         pc := to_integer(unsigned(data_out)) when zero = '1' else pc;
                     when JGR =>
                         pc := to_integer(unsigned(data_out)) when signal_bit = '1' else pc;
-                    when STORE | LOAD =>
+                    when STORE =>
                         address <= alu_out;
+                        mem_write <= '1';
+                    when LOAD =>
+                        address <= alu_out;
+                        wdata <= data_out;
                     when DIN =>
                         wait until rising_edge(set);
                         wdata <= input;
