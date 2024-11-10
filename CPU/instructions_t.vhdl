@@ -19,7 +19,8 @@ package instructions_t is
     subtype func_r is natural range 7 downto 4;
     subtype rs0_r  is natural range 3 downto 2;
     subtype rs1_r  is natural range 1 downto 0;
-    subtype addressable is natural range 0 to 2 ** inst_l - 1;
+    subtype addressable_mem is natural range 0 to 2 ** inst_l - 1;
+    subtype addressable_reg is natural range 0 to 2 ** reg_l - 1;
     alias reg_r is rs1_r;
 
     -- Function enumeration

@@ -41,7 +41,8 @@ architecture Behaviour of Memory is
         14 => x"73",
         15 => x"00",
         16 => x"D8",
-        17 => x"F0"
+        17 => x"F0",
+        others => x"00"
     );
     begin
         memory_access: process(clock)

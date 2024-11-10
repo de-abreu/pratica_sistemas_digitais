@@ -5,10 +5,11 @@ use work.instructions_t.all;
 
 entity ArithmeticLogicUnit is
     port (
-        op_a, op_b                      : in  std_logic_vector(inst_r);
-        operation                       : in  func;
-        result                          : out std_logic_vector(inst_r);
-        clk, zero, signal_bit, overflow : out std_logic
+        op_a, op_b                 : in  std_logic_vector(inst_r);
+        operation                  : in  func;
+        clk                        : in  std_logic;
+        result                     : out std_logic_vector(inst_r);
+        zero, signal_bit, overflow : out std_logic
     );
 end entity ArithmeticLogicUnit;
 
