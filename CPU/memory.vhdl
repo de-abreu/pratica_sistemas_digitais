@@ -12,7 +12,37 @@ entity Memory is
 end entity Memory;
 
 architecture Behaviour of Memory is
-    signal mem : vector_array(0 to 2**8 - 1)(7 downto 0);
+    signal mem : vector_array(0 to 2**8 - 1)(7 downto 0) :=
+    -- Sum test
+    -- (
+    --     0 => x"C0",
+    --     1 => x"C4",
+    --     2 => x"11",
+    --     3 => x"D8",
+    --     4 => x"F0",
+    --     others => x"00"
+    -- );
+    -- Multiplication test
+    (
+        0  => x"C0",
+        1  => x"C4",
+        2  => x"EB",
+        3  => x"00",
+        4  => x"37",
+        5  => x"00",
+        6  => x"80",
+        7  => x"10",
+        8  => x"18",
+        9  => x"AB",
+        10 => x"FF",
+        11 => x"27",
+        12 => x"01",
+        13 => x"E6",
+        14 => x"73",
+        15 => x"00",
+        16 => x"D8",
+        17 => x"F0"
+    );
     begin
         memory_access: process(clock)
             variable index : integer;

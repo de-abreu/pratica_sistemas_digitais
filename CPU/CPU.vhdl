@@ -7,8 +7,8 @@ use work.instructions_t.all;
 entity CentralProcessingUnit is
     port (
         input         : in  std_logic_vector(inst_r);
-        output        : out std_logic_vector(inst_r);
-        clk, set, rst : out std_logic
+        clk, set, rst : in  std_logic;
+        output        : out std_logic_vector(inst_r)
     );
 end entity CentralProcessingUnit;
 
