@@ -82,9 +82,7 @@ begin
 
     confirm : process(set)
     begin
-        if rising_edge(set) then
-            input_enable <= '1';
-        end if;
+        input_enable <= '1';
     end process confirm;
 
     ControlUnit: process(clk, rst)
@@ -127,6 +125,7 @@ begin
                 address <= std_logic_vector(to_unsigned(pc, address'length));
                 alu_b <= data_out;
                 pc := pc + 1;
+                next_state := execute;
             when others => -- Execute next instruction
                 case ir is
                     when ADD | SUB | LAND | LOR | LNOT | MOV =>
