@@ -34,6 +34,8 @@ begin
                 result <= op_a or op_b;
             when LNOT =>
                 result <= not op_a;
+            when MOV =>
+                result <= op_b;
             when others =>
                 result <= op_a;
         end case;

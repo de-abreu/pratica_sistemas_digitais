@@ -15,7 +15,6 @@ end entity CentralProcessingUnit;
 architecture Structural of CentralProcessingUnit is
     type state is (fetch, decode, immediate, execute);
     signal ir : func;
-    signal rs : vector_array(0 to 1)(reg_r);
     signal ops : vector_array(0 to 1)(inst_r);
     signal rd : std_logic_vector(reg_r);
     signal alu_b, alu_out, address, data_out, wdata : std_logic_vector(inst_r);
@@ -56,7 +55,7 @@ begin
             count => 2 ** reg_l
         )
         port map (
-            rs    => rs,
+            rs    => (data_out(rs0_r), data_out(rs1_r)),
             rd    => rd,
             wdata => wdata,
             ops   => ops
@@ -108,8 +107,6 @@ begin
                 input_enable <= '0';
 
                 -- Configure register bank
-                rs(0) <= data_out(rs0_r);
-                rs(1) <= data_out(rs1_r);
                 with ir select
                     rd <= data_out(rs0_r) when LOAD | DIN | MOV,
                           "10"            when others;
