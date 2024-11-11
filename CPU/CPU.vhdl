@@ -14,7 +14,7 @@ entity CentralProcessingUnit is
 end entity CentralProcessingUnit;
 
 architecture Structural of CentralProcessingUnit is
-    type state is (fetch, decode, immediate, execute);
+    type state is (fetch, decode, execute);
     signal next_state : state;
     signal pc : addressable_mem;
     signal ir : func;
@@ -84,7 +84,6 @@ begin
     ControlUnit: process(clk, rst)
     begin
         if rst = '1' then
-            waiting <= '0';
             next_state <= fetch;
             pc <= 0;
 
@@ -94,6 +93,7 @@ begin
                     mem_write <= '0';
                     reg_write <= '0';
                     output_enable <= '0';
+                    waiting <= '0';
                     address <= std_logic_vector(to_unsigned(pc, address'length));
                     ir <= to_func(data_out(func_r));
                     pc <= pc + 1;
@@ -108,19 +108,12 @@ begin
 
                 -- Configure ALU and determine the next state
                 if data_out(rs1_r) = imm then
-                    next_state <= immediate;
+                    address <= std_logic_vector(to_unsigned(pc, address'length));
+                    alu_b <= data_out;
+                    pc <= pc + 1;
                 else
                     alu_b <= ops(1);
-                    next_state <= execute;
                 end if;
-
-                -- Signal when the CPU is waiting for user input
-                waiting <= '1' when ir = DIN else '0';
-
-            when immediate =>
-                address <= std_logic_vector(to_unsigned(pc, address'length));
-                alu_b <= data_out;
-                pc <= pc + 1;
                 next_state <= execute;
             when others => -- Execute next instruction
                 case ir is
@@ -146,10 +139,10 @@ begin
                         wdata <= data_out;
                         next_state <= fetch;
                     when DIN =>
+                        waiting <= '1';
                         if set = '1' then
                             wdata <= input;
                             reg_write <= '1';
-                            waiting <= '0';
                             next_state <= fetch;
                         end if;
                     when DOUT =>
