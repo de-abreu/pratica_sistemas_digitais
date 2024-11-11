@@ -26,11 +26,11 @@ architecture Structural of CentralProcessingUnit is
 
     component Registers is
         port (
-            rs        : in  vector_array(0 to 1)(reg_r);
-            rd        : in  std_logic_vector(reg_r);
-            wdata     : in  std_logic_vector(inst_r);
-            wren, clk : in  std_logic;
-            ops       : out vector_array(0 to 1)(inst_r)
+            rs    : in  vector_array(0 to 1)(reg_r);
+            rd    : in  std_logic_vector(reg_r);
+            wdata : in  std_logic_vector(inst_r);
+            wren  : in  std_logic;
+            ops   : out vector_array(0 to 1)(inst_r)
         );
     end component Registers;
 
@@ -58,7 +58,6 @@ begin
             rs    => (data_out(rs0_r), data_out(rs1_r)),
             rd    => rd,
             wdata => wdata,
-            clk   => clk,
             wren  => reg_write,
             ops   => ops
         );
@@ -82,6 +81,7 @@ begin
         );
 
     ControlUnit: process(clk, rst)
+        variable tmp : func;
     begin
         if rst = '1' then
             next_state <= fetch;
@@ -89,7 +89,8 @@ begin
 
         elsif rising_edge(clk) then
             case next_state is
-                when fetch => -- Fetch next instruction at the memory address pointed at by PC
+                -- Reset control signals and fetch next instruction at the memory address pointed at by PC
+                when fetch =>
                     mem_write <= '0';
                     reg_write <= '0';
                     output_enable <= '0';
@@ -99,14 +100,14 @@ begin
                     pc <= pc + 1;
                     next_state <= decode;
 
-             -- Assign control signals, divert data flow, fetch immediate values
+             -- Divert data flow, fetch immediate values
             when decode =>
                 -- Configure register bank
                 with ir select
                     rd <= data_out(rs0_r) when LOAD | DIN | MOV,
                           "10"            when others;
 
-                -- Configure ALU and determine the next state
+                -- Configure ALU
                 if data_out(rs1_r) = imm then
                     address <= std_logic_vector(to_unsigned(pc, address'length));
                     alu_b <= data_out;
