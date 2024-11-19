@@ -14,7 +14,7 @@ entity CentralProcessingUnit is
 end entity CentralProcessingUnit;
 
 architecture Structural of CentralProcessingUnit is
-    type state is (fetch, decode, execute);
+    type state is (fetch, decode, execute, write_back);
     signal prev_state : state;
     signal pc : addressable_mem;
     signal opcode : func;
@@ -28,7 +28,7 @@ architecture Structural of CentralProcessingUnit is
         port (
             rs        : in  vector_array(0 to 1)(reg_r);
             rd        : in  std_logic_vector(reg_r);
-            wren, clk : in  std_logic;
+            wren      : in  std_logic;
             wdata     : in  std_logic_vector(inst_r);
             ops       : out vector_array(0 to 1)(inst_r)
         );
@@ -67,7 +67,6 @@ begin
             rs    => rs,
             rd    => rd,
             wren  => reg_write,
-            clk   => clk,
             wdata => wdata,
             ops   => ops
         );
@@ -86,14 +85,14 @@ begin
         address <= std_logic_vector(to_unsigned(pc, address'length));
         if rst = '1' then
             output <= (others => '0');
-            prev_state <= execute;
+            prev_state <= write_back;
             pc <= 0;
 
         elsif rising_edge(clk) then
             case prev_state is
 
                 -- Reset control signals and fetch next instruction at the memory address pointed at by PC
-                when execute =>
+                when write_back =>
                     alu_enable <= '0';
                     reg_write <= '0';
                     mem_write <= '0';
@@ -110,41 +109,43 @@ begin
                     pc <= pc + 1 when rs(1) = imm else pc;
                     prev_state <= decode;
 
-                -- Execute next instruction
-                when others =>
+                -- Enable ALU and execute the instruction
+                when decode =>
                     alu_enable <= '1';
                     alu_b <= ir when rs(1) = imm else ops(1);
+                    if opcode = DIN then
+                        waiting <= '1';
+                    end if;
+                    if not (opcode = HALT or (opcode = DIN and set = '0')) then
+                        prev_state <= execute;
+                    end if;
+                when others =>
+                    with opcode select
+                        reg_write <= '1' when ADD | SUB | LAND | LOR | LNOT | MOV | LOAD | DIN,
+                                     '0' when others;
+                    mem_write <= '1' when opcode = STORE else '0';
+                    with opcode select
+                        wdata <= alu_out when ADD | SUB | LAND | LOR | LNOT | MOV,
+                                 input when DIN,
+                                 ir when LOAD,
+                                 wdata when others;
+                    with opcode select
+                        address <= alu_out when STORE | LOAD,
+                                   address when others;
+                    if opcode = DOUT then
+                        output <= alu_out;
+                    end if;
                     case opcode is
-                        when ADD | SUB | LAND | LOR | LNOT | MOV =>
-                            reg_write <= '1';
-                            wdata <= alu_out;
                         when JMP =>
                             pc <= to_integer(unsigned(ir));
                         when JEQ =>
                             pc <= to_integer(unsigned(ir)) when zero = '1' else pc;
                         when JGR =>
                             pc <= to_integer(unsigned(ir)) when signal_bit = '1' else pc;
-                        when STORE =>
-                            address <= alu_out;
-                            mem_write <= '1';
-                        when LOAD =>
-                            address <= alu_out;
-                            reg_write <= '1';
-                            wdata <= ir;
-                        when DIN =>
-                            waiting <= '1';
-                            if set = '1' then
-                                reg_write <= '1';
-                                wdata <= input;
-                            end if;
-                        when DOUT =>
-                            output <= alu_out;
-                        when others => --NOP or HALT
+                        when others =>
+                            pc <= pc + 1;
                     end case;
-                    if not (opcode = HALT or (opcode = DIN and set = '0')) then
-                        pc <= pc + 1;
-                        prev_state <= execute;
-                    end if;
+                    prev_state <= write_back;
             end case;
         end if;
     end process ControlUnit;

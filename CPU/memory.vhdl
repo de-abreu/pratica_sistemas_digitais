@@ -54,7 +54,7 @@ architecture Behaviour of Memory is
 
         memory_access: process(clock)
         begin
-            if falling_edge(clock) and wren = '1' then
+            if rising_edge(clock) and wren = '1' then
                 mem(index) <= data;
             end if;
         end process memory_access;
