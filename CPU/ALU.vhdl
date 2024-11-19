@@ -7,7 +7,7 @@ entity ArithmeticLogicUnit is
     port (
         op_a, op_b                 : in  std_logic_vector(inst_r);
         operation                  : in  func;
-        clk                        : in  std_logic;
+        enable                     : in  std_logic;
         result                     : out std_logic_vector(inst_r);
         zero, signal_bit, overflow : out std_logic
     );
@@ -15,7 +15,7 @@ end entity ArithmeticLogicUnit;
 
 architecture Behaviour of ArithmeticLogicUnit is
 begin
-    calculate : process(clk)
+    calculate : process(enable)
         variable int_a, int_b, int_r : integer;
     begin
         case operation is

@@ -22,7 +22,7 @@ architecture Structural of CentralProcessingUnit is
     signal ops : vector_array(0 to 1)(inst_r);
     signal rd : std_logic_vector(reg_r);
     signal alu_b, alu_out, address, ir, wdata : std_logic_vector(inst_r);
-    signal mem_write, reg_write, output_enable, zero, signal_bit, overflow : std_logic;
+    signal mem_write, reg_write, alu_enable, output_enable, zero, signal_bit, overflow : std_logic;
 
     component Registers is
         port (
@@ -46,7 +46,7 @@ architecture Structural of CentralProcessingUnit is
         port (
             op_a, op_b                 : in  std_logic_vector(inst_r);
             operation                  : in  func;
-            clk                        : in  std_logic;
+            enable                     : in  std_logic;
             result                     : out std_logic_vector(inst_r);
             zero, signal_bit, overflow : out std_logic
         );
@@ -75,8 +75,8 @@ begin
         port map (
             op_a      => ops(0),
             op_b      => alu_b,
+            enable    => alu_enable,
             operation => opcode,
-            clk       => clk,
             result    => alu_out
         );
 
@@ -93,6 +93,7 @@ begin
 
                 -- Reset control signals and fetch next instruction at the memory address pointed at by PC
                 when execute =>
+                    alu_enable <= '0';
                     reg_write <= '0';
                     mem_write <= '0';
                     waiting <= '0';
@@ -110,6 +111,7 @@ begin
 
                 -- Execute next instruction
                 when others =>
+                    alu_enable <= '1';
                     alu_b <= ir when rs(1) = imm else ops(1);
                     case opcode is
                         when ADD | SUB | LAND | LOR | LNOT | MOV =>
