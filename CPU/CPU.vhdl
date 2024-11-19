@@ -26,11 +26,11 @@ architecture Structural of CentralProcessingUnit is
 
     component Registers is
         port (
-            rs    : in  vector_array(0 to 1)(reg_r);
-            rd    : in  std_logic_vector(reg_r);
-            wdata : in  std_logic_vector(inst_r);
-            wren  : in  std_logic;
-            ops   : out vector_array(0 to 1)(inst_r)
+            rs        : in  vector_array(0 to 1)(reg_r);
+            rd        : in  std_logic_vector(reg_r);
+            wren, clk : in  std_logic;
+            wdata     : in  std_logic_vector(inst_r);
+            ops       : out vector_array(0 to 1)(inst_r)
         );
     end component Registers;
 
@@ -66,8 +66,9 @@ begin
         port map (
             rs    => rs,
             rd    => rd,
-            wdata => wdata,
             wren  => reg_write,
+            clk   => clk,
+            wdata => wdata,
             ops   => ops
         );
 
@@ -82,13 +83,13 @@ begin
 
     ControlUnit: process(clk, rst)
     begin
+        address <= std_logic_vector(to_unsigned(pc, address'length));
         if rst = '1' then
             output <= (others => '0');
             prev_state <= execute;
             pc <= 0;
 
         elsif rising_edge(clk) then
-            address <= std_logic_vector(to_unsigned(pc, address'length));
             case prev_state is
 
                 -- Reset control signals and fetch next instruction at the memory address pointed at by PC
@@ -101,7 +102,7 @@ begin
                     rs <= (ir(rs0_r), ir(rs1_r));
                     prev_state <= fetch;
 
-                -- Identify function and fetch immediate values, if any;
+                -- Decode function and fetch immediate values, if any;
                 when fetch =>
                     with opcode select
                         rd <= rs(0) when LOAD | DIN | MOV,
