@@ -90,6 +90,7 @@ begin
         elsif rising_edge(clk) then
             address <= std_logic_vector(to_unsigned(pc, address'length));
             case prev_state is
+
                 -- Reset control signals and fetch next instruction at the memory address pointed at by PC
                 when execute =>
                     reg_write <= '0';
@@ -106,41 +107,40 @@ begin
                               "10" when others;
                     pc <= pc + 1 when rs(1) = imm else pc;
                     prev_state <= decode;
+
                 -- Execute next instruction
                 when others =>
                     alu_b <= ir when rs(1) = imm else ops(1);
-                    if opcode /= HALT then
-                        case opcode is
-                            when ADD | SUB | LAND | LOR | LNOT | MOV =>
+                    case opcode is
+                        when ADD | SUB | LAND | LOR | LNOT | MOV =>
+                            reg_write <= '1';
+                            wdata <= alu_out;
+                        when JMP =>
+                            pc <= to_integer(unsigned(ir));
+                        when JEQ =>
+                            pc <= to_integer(unsigned(ir)) when zero = '1' else pc;
+                        when JGR =>
+                            pc <= to_integer(unsigned(ir)) when signal_bit = '1' else pc;
+                        when STORE =>
+                            address <= alu_out;
+                            mem_write <= '1';
+                        when LOAD =>
+                            address <= alu_out;
+                            reg_write <= '1';
+                            wdata <= ir;
+                        when DIN =>
+                            waiting <= '1';
+                            if set = '1' then
                                 reg_write <= '1';
-                                wdata <= alu_out;
-                            when JMP =>
-                                pc <= to_integer(unsigned(ir));
-                            when JEQ =>
-                                pc <= to_integer(unsigned(ir)) when zero = '1' else pc;
-                            when JGR =>
-                                pc <= to_integer(unsigned(ir)) when signal_bit = '1' else pc;
-                            when STORE =>
-                                address <= alu_out;
-                                mem_write <= '1';
-                            when LOAD =>
-                                address <= alu_out;
-                                reg_write <= '1';
-                                wdata <= ir;
-                            when DIN =>
-                                waiting <= '1';
-                                if set = '1' then
-                                    reg_write <= '1';
-                                    wdata <= input;
-                                end if;
-                            when DOUT =>
-                                output <= alu_out;
-                            when others => --NOP
-                        end case;
-                        if not (opcode = DIN and set = '0') then
-                            pc <= pc + 1;
-                            prev_state <= execute;
-                        end if;
+                                wdata <= input;
+                            end if;
+                        when DOUT =>
+                            output <= alu_out;
+                        when others => --NOP or HALT
+                    end case;
+                    if not (opcode = HALT or (opcode = DIN and set = '0')) then
+                        pc <= pc + 1;
+                        prev_state <= execute;
                     end if;
             end case;
         end if;

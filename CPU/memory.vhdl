@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.NUMERIC_STD.all;
 use work.arrays_t.all;
+use work.instructions_t.all;
 
 entity Memory is
     port (
@@ -46,16 +47,15 @@ architecture Behaviour of Memory is
         19 => x"F0",
         others => x"00"
     );
+    signal index : addressable_mem;
     begin
+        index <= to_integer(unsigned(address));
+        q <= mem(index);
+
         memory_access: process(clock)
-            variable index : integer;
         begin
-            if rising_edge(clock) then
-                index := to_integer(unsigned(address));
-                if wren = '1' then
-                    mem(index) <= data;
-                end if;
-                q <= mem(index);
+            if rising_edge(clock) and wren = '1' then
+                mem(index) <= data;
             end if;
         end process memory_access;
 end architecture Behaviour;
