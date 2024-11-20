@@ -25,26 +25,28 @@ architecture Behaviour of Memory is
     -- );
     -- Multiplication test
     (
-        0  => x"E3",
-        1  => x"05",
-        2  => x"E7",
-        3  => x"07",
-        4  => x"EB",
-        5  => x"00",
-        6  => x"37",
-        7  => x"00",
-        8  => x"80",
-        9  => x"10",
-        10 => x"18",
-        11 => x"AB",
-        12 => x"FF",
-        13 => x"27",
-        14 => x"01",
-        15 => x"E6",
-        16 => x"73",
-        17 => x"00",
-        18 => x"D8",
-        19 => x"F0",
+        0  => x"E3", -- MOV A Imm
+        1  => x"05", -- 5
+        2  => x"E7", -- MOV B Imm
+        3  => x"07", -- 7
+        4  => x"EB", -- MOV R Imm
+        5  => x"00", -- 0
+        6  => x"37", -- CMP B Imm
+        7  => x"00", -- 0
+        8  => x"80", -- JEQ Imm
+        9  => x"10", -- 16
+        10 => x"18", -- ADD R A
+        11 => x"BB", -- STORE R Imm
+        12 => x"FF", -- 255
+        13 => x"27", -- SUB B Imm
+        14 => x"01", -- 1
+        15 => x"E6", -- MOV B R
+        16 => x"AB", -- LOAD R Imm
+        17 => x"FF", -- 255
+        18 => x"70", -- JMP Imm
+        19 => x"06", -- 6
+        20 => x"D8", -- DOUT R
+        21 => x"F0", -- HALT
         others => x"00"
     );
     signal index : addressable_mem;

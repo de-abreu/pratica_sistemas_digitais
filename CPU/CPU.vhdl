@@ -58,7 +58,7 @@ begin
             address => address,
             clock   => clk,
             wren    => mem_write,
-            data    => ops(1),
+            data    => ops(0),
             q       => ir
         );
 
@@ -77,18 +77,20 @@ begin
             op_b      => alu_b,
             enable    => alu_enable,
             operation => opcode,
-            result    => alu_out
+            result    => alu_out,
+            zero      => zero,
+            signal_bit => signal_bit,
+            overflow  => overflow
         );
 
     ControlUnit: process(clk, rst)
     begin
-        address <= std_logic_vector(to_unsigned(pc, address'length));
         if rst = '1' then
             output <= (others => '0');
             prev_state <= write_back;
             pc <= 0;
-
         elsif rising_edge(clk) then
+        address <= std_logic_vector(to_unsigned(pc, address'length));
             case prev_state is
 
                 -- Reset control signals and fetch next instruction at the memory address pointed at by PC
@@ -101,12 +103,12 @@ begin
                     rs <= (ir(rs0_r), ir(rs1_r));
                     prev_state <= fetch;
 
-                -- Decode function and fetch immediate values, if any;
+                -- Decode function, and fetch an immediate value if needed;
                 when fetch =>
                     with opcode select
                         rd <= rs(0) when LOAD | DIN | MOV,
                               "10" when others;
-                    pc <= pc + 1 when rs(1) = imm else pc;
+                    pc <= (pc + 1) mod (addressable_mem'high + 1) when rs(1) = imm else pc;
                     prev_state <= decode;
 
                 -- Enable ALU and execute the instruction
@@ -121,6 +123,9 @@ begin
                     end if;
                 when others =>
                     with opcode select
+                        address <= alu_out when STORE | LOAD,
+                                   address when others;
+                    with opcode select
                         reg_write <= '1' when ADD | SUB | LAND | LOR | LNOT | MOV | LOAD | DIN,
                                      '0' when others;
                     mem_write <= '1' when opcode = STORE else '0';
@@ -129,9 +134,6 @@ begin
                                  input when DIN,
                                  ir when LOAD,
                                  wdata when others;
-                    with opcode select
-                        address <= alu_out when STORE | LOAD,
-                                   address when others;
                     if opcode = DOUT then
                         output <= alu_out;
                     end if;
@@ -139,11 +141,11 @@ begin
                         when JMP =>
                             pc <= to_integer(unsigned(ir));
                         when JEQ =>
-                            pc <= to_integer(unsigned(ir)) when zero = '1' else pc;
+                            pc <= to_integer(unsigned(ir)) when zero = '1' else (pc + 2) mod (addressable_mem'high + 2);
                         when JGR =>
-                            pc <= to_integer(unsigned(ir)) when signal_bit = '1' else pc;
+                            pc <= to_integer(unsigned(ir)) when signal_bit = '1' else (pc + 2) mod (addressable_mem'high + 2);
                         when others =>
-                            pc <= pc + 1;
+                            pc <= (pc + 1) mod (addressable_mem'high + 1);
                     end case;
                     prev_state <= write_back;
             end case;
