@@ -15,15 +15,16 @@ end entity CentralProcessingUnit;
 
 architecture Structural of CentralProcessingUnit is
     type state is (fetch, decode, execute, memory_access, write_back);
-    signal opcode : func;
-    signal next_state : state;
-    signal pc : addressable_mem;
+    signal opcode_db : func;
+    signal next_state_db : state;
+    signal pc_db : addressable_mem;
+
 
     signal alu_op : func;
     signal rs : vector_array(0 to 1)(reg_r);
     signal ops, alu_in : vector_array(0 to 1)(inst_r);
     signal rd : std_logic_vector(reg_r);
-    signal alu_out, address, ir, wdata : std_logic_vector(inst_r);
+    signal alu_out, ir, address, wdata : std_logic_vector(inst_r);
     signal mem_write, zero, signal_bit, overflow : std_logic;
 
     component Registers is
@@ -81,76 +82,93 @@ begin
         );
 
     ControlUnit: process(clk, rst)
-        variable tmp : func;
+        variable opcode : func;
+        variable next_state : state;
+        variable pc : addressable_mem;
     begin
         if rst = '1' then
             output <= (others => '0');
-            next_state <= fetch;
-            pc <= 0;
+            next_state := fetch;
+            next_state_db <= next_state;
+            pc := 0;
+            pc_db <= pc;
+            address <= (others => '0');
         elsif rising_edge(clk) then
             case next_state is
 
-                -- Reset control signals and fetch next instruction at the memory address pointed at by PC
+                -- Fetch next instruction at the memory address pointed at by PC
                 when fetch =>
-                    address <= std_logic_vector(to_unsigned(pc, address'length));
-                    mem_write <= '0';
-                    waiting <= '0';
-                    next_state <= decode;
-
-                -- Set target registers and offset program counter to fetch an immediate value if needed;
-                when decode =>
-                    tmp := to_func(ir(func_r));
-                    address <= std_logic_vector(to_unsigned(pc, address'length));
-                    opcode <= tmp;
+                    next_state := decode;
+                    opcode := to_func(ir(func_r));
+                    opcode_db<= opcode;
                     rs <= (ir(rs0_r), ir(rs1_r));
-                    pc <= (pc + 1) mod (addressable_mem'high + 1) when rs(1) = imm else pc;
-                    with tmp select
-                        next_state <= memory_access when LOAD | STORE,
-                                      execute when others;
+                    pc := (pc + 1) mod (addressable_mem'high + 1);
+                    pc_db <= pc;
+                    next_state_db <= next_state;
 
-                -- Enable ALU and execute the instruction
+                -- Fetch values at the registers pointed at by rs
+                when decode =>
+                    next_state := execute;
+                    address <= std_logic_vector(to_unsigned(pc, address'length));
+                    next_state_db <= next_state;
+
+                -- Execute instruction
                 when execute =>
                     with opcode select
-                        next_state <= execute when HALT,
+                        next_state := execute when HALT,
                                       fetch when NOP | CMP | JMP | JEQ | JGR | DOUT,
+                                      memory_access when LOAD | STORE,
                                       write_back when others;
                     case opcode is
-                        when ADD | SUB | CMP | LAND | LOR | LNOT =>
-                            alu_op <= opcode;
-                            alu_in(0) <= ops(0);
-                            alu_in(1) <= ir when rs(1) = imm else ops(1);
+                        when NOP | HALT =>
                         when JMP =>
-                            pc <= to_integer(unsigned(ir));
+                            pc := to_integer(unsigned(ir));
                         when JEQ =>
-                            pc <= to_integer(unsigned(ir)) when zero = '1' else (pc + 2) mod (addressable_mem'high + 2);
+                            pc := to_integer(unsigned(ir)) when zero = '1' else (pc + 1) mod (addressable_mem'high + 1);
                         when JGR =>
-                            pc <= to_integer(unsigned(ir)) when signal_bit = '1' else (pc + 2) mod (addressable_mem'high + 2);
+                            pc := to_integer(unsigned(ir)) when signal_bit = '1' else (pc + 1) mod (addressable_mem'high + 1);
                         when DIN =>
                             waiting <= '1';
-                            next_state <= write_back when set = '1' else execute;
+                            next_state := write_back when set = '1' else execute;
                         when DOUT =>
                             output <= ops(0);
                         when others =>
+                            alu_op <= opcode;
+                            alu_in(0) <= ops(0);
+                            if rs(1) = imm then
+                                alu_in(1) <= ir;
+                                pc := (pc + 1) mod (addressable_mem'high + 1);
+                            else
+                                alu_in(1) <= ops(1);
+                            end if;
                     end case;
+                    address <= std_logic_vector(to_unsigned(pc, address'length));
+                    pc_db <= pc;
+                    next_state_db <= next_state;
+
+                -- Access memory to save or retrieve data
                 when memory_access =>
-                    address <= ir;
-                    if opcode = STORE then
-                        mem_write <= '1';
-                        next_state <= fetch;
-                    else -- LOAD
-                        mem_write <= '0';
-                        next_state <= write_back;
-                    end if;
-                when others => -- write_back
+                    next_state := write_back;
+                    mem_write <= '1' when opcode = STORE else '0';
+                    address <= alu_out;
+                    next_state_db <= next_state;
+
+                -- Reset control signals and write back result to a given register
+                when others =>
+                    next_state := fetch;
+                    mem_write <= '0';
+                    waiting <= '0';
                     with opcode select
                         rd <= rs(0) when LOAD | DIN | MOV,
+                              rd when STORE,
                               "10" when others;
                     with opcode select
                         wdata <= ir when LOAD,
                                  input when DIN,
-                                 ops(1) when MOV,
+                                 wdata when STORE,
                                  alu_out when others;
-                    next_state <= fetch;
+                    address <= std_logic_vector(to_unsigned(pc, address'length));
+                    next_state_db <= next_state;
             end case;
         end if;
     end process ControlUnit;

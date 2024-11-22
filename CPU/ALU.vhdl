@@ -33,8 +33,10 @@ begin
                 result <= ops(0) and ops(1);
             when LOR =>
                 result <= ops(0) or ops(1);
-            when others => -- LNOT
+            when LNOT =>
                 result <= not ops(0);
+            when others => -- MOV, STORE, LOAD
+                result <= ops(1);
         end case;
     end process calculate;
 end architecture Behaviour;

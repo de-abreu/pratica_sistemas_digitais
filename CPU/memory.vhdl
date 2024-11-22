@@ -14,39 +14,28 @@ end entity Memory;
 
 architecture Behaviour of Memory is
     signal mem : vector_array(0 to 2**8 - 1)(7 downto 0) :=
-    -- Sum test
-    -- (
-    --     0 => x"C0",
-    --     1 => x"C4",
-    --     2 => x"11",
-    --     3 => x"D8",
-    --     4 => x"F0",
-    --     others => x"00"
-    -- );
-    -- Multiplication test
+    -- Multiplication program
     (
-        0  => x"E3", -- MOV A Imm
-        1  => x"05", -- 5
-        2  => x"E7", -- MOV B Imm
-        3  => x"07", -- 7
-        4  => x"EB", -- MOV R Imm
+        0  => x"C3", -- DIN A
+        1  => x"C7", -- DIN B
+        2  => x"EB", -- MOV R Imm
+        3  => x"00", -- 0
+        4  => x"37", -- CMP B Imm
         5  => x"00", -- 0
-        6  => x"37", -- CMP B Imm
-        7  => x"00", -- 0
-        8  => x"80", -- JEQ Imm
-        9  => x"10", -- 16
-        10 => x"18", -- ADD R A
-        11 => x"BB", -- STORE R Imm
-        12 => x"FF", -- 255
-        13 => x"27", -- SUB B Imm
-        14 => x"01", -- 1
-        15 => x"E6", -- MOV B R
-        16 => x"AB", -- LOAD R Imm
-        17 => x"FF", -- 255
-        18 => x"70", -- JMP Imm
-        19 => x"06", -- 6
-        20 => x"D8", -- DOUT R
-        21 => x"F0", -- HALT
+        6  => x"80", -- JEQ Imm
+        7  => x"12", -- 18
+        8 => x"18", -- ADD R A
+        9 => x"BB", -- STORE R Imm
+        10 => x"FF", -- 255
+        11 => x"27", -- SUB B Imm
+        12 => x"01", -- 1
+        13 => x"E6", -- MOV B R
+        14 => x"AB", -- LOAD R Imm
+        15 => x"FF", -- 255
+        16 => x"70", -- JMP Imm
+        17 => x"06", -- 4
+        18 => x"D8", -- DOUT R
+        19 => x"F0", -- HALT
         others => x"00"
     );
     signal index : addressable_mem;
