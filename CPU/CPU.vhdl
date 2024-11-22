@@ -14,17 +14,16 @@ entity CentralProcessingUnit is
 end entity CentralProcessingUnit;
 
 architecture Structural of CentralProcessingUnit is
-    type state is (fetch, decode, execute, memory_access, write_back);
+    type state is (fetch, execute, memory_access, write_back);
     signal opcode_db : func;
     signal next_state_db : state;
     signal pc_db : addressable_mem;
-
 
     signal alu_op : func;
     signal rs : vector_array(0 to 1)(reg_r);
     signal ops, alu_in : vector_array(0 to 1)(inst_r);
     signal rd : std_logic_vector(reg_r);
-    signal alu_out, ir, address, wdata : std_logic_vector(inst_r);
+    signal alu_out, ir, address, wb : std_logic_vector(inst_r);
     signal mem_write, zero, signal_bit, overflow : std_logic;
 
     component Registers is
@@ -67,7 +66,7 @@ begin
         port map (
             rs    => rs,
             rd    => rd,
-            wdata => wdata,
+            wdata => wb,
             ops   => ops
         );
 
@@ -89,27 +88,22 @@ begin
         if rst = '1' then
             output <= (others => '0');
             next_state := fetch;
-            next_state_db <= next_state;
             pc := 0;
+            address <= std_logic_vector(to_unsigned(pc, address'length));
             pc_db <= pc;
-            address <= (others => '0');
+            next_state_db <= next_state;
         elsif rising_edge(clk) then
             case next_state is
 
                 -- Fetch next instruction at the memory address pointed at by PC
                 when fetch =>
-                    next_state := decode;
+                    next_state := execute;
                     opcode := to_func(ir(func_r));
-                    opcode_db<= opcode;
                     rs <= (ir(rs0_r), ir(rs1_r));
                     pc := (pc + 1) mod (addressable_mem'high + 1);
-                    pc_db <= pc;
-                    next_state_db <= next_state;
-
-                -- Fetch values at the registers pointed at by rs
-                when decode =>
-                    next_state := execute;
                     address <= std_logic_vector(to_unsigned(pc, address'length));
+                    opcode_db<= opcode;
+                    pc_db <= pc;
                     next_state_db <= next_state;
 
                 -- Execute instruction
@@ -163,10 +157,10 @@ begin
                               rd when STORE,
                               "10" when others;
                     with opcode select
-                        wdata <= ir when LOAD,
-                                 input when DIN,
-                                 wdata when STORE,
-                                 alu_out when others;
+                        wb <= ir when LOAD,
+                              input when DIN,
+                              wb when STORE,
+                              alu_out when others;
                     address <= std_logic_vector(to_unsigned(pc, address'length));
                     next_state_db <= next_state;
             end case;
