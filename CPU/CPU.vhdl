@@ -15,10 +15,6 @@ end entity CentralProcessingUnit;
 
 architecture Structural of CentralProcessingUnit is
     type state is (fetch, execute, memory_access, write_back);
-    signal opcode_db : func;
-    signal next_state_db : state;
-    signal pc_db : addressable_mem;
-
     signal alu_op : func;
     signal rs : vector_array(0 to 1)(reg_r);
     signal ops, alu_in : vector_array(0 to 1)(inst_r);
@@ -90,8 +86,6 @@ begin
             next_state := fetch;
             pc := 0;
             address <= std_logic_vector(to_unsigned(pc, address'length));
-            pc_db <= pc;
-            next_state_db <= next_state;
         elsif rising_edge(clk) then
             case next_state is
 
@@ -102,9 +96,6 @@ begin
                     rs <= (ir(rs0_r), ir(rs1_r));
                     pc := (pc + 1) mod (addressable_mem'high + 1);
                     address <= std_logic_vector(to_unsigned(pc, address'length));
-                    opcode_db<= opcode;
-                    pc_db <= pc;
-                    next_state_db <= next_state;
 
                 -- Execute instruction
                 when execute =>
@@ -137,15 +128,12 @@ begin
                             end if;
                     end case;
                     address <= std_logic_vector(to_unsigned(pc, address'length));
-                    pc_db <= pc;
-                    next_state_db <= next_state;
 
                 -- Access memory to save or retrieve data
                 when memory_access =>
                     next_state := write_back;
                     mem_write <= '1' when opcode = STORE else '0';
                     address <= alu_out;
-                    next_state_db <= next_state;
 
                 -- Reset control signals and write back result to a given register
                 when others =>
@@ -162,7 +150,6 @@ begin
                               wb when STORE,
                               alu_out when others;
                     address <= std_logic_vector(to_unsigned(pc, address'length));
-                    next_state_db <= next_state;
             end case;
         end if;
     end process ControlUnit;
