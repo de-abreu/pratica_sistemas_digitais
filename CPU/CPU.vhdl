@@ -15,6 +15,8 @@ end entity CentralProcessingUnit;
 
 architecture Structural of CentralProcessingUnit is
     type state is (fetch, execute, memory_access, write_back);
+
+    -- Signals to interconnect components
     signal alu_op : func;
     signal rs : vector_array(0 to 1)(reg_r);
     signal ops, alu_in : vector_array(0 to 1)(inst_r);
@@ -22,6 +24,7 @@ architecture Structural of CentralProcessingUnit is
     signal alu_out, ir, address, wb : std_logic_vector(inst_r);
     signal mem_write, zero, signal_bit, overflow : std_logic;
 
+    -- Component declarations
     component Registers is
         port (
             rs        : in  vector_array(0 to 1)(reg_r);
@@ -49,6 +52,8 @@ architecture Structural of CentralProcessingUnit is
     end component ArithmeticLogicUnit;
 
 begin
+
+    -- Component instantiating
     mem : Memory
         port map (
             address => address,
@@ -94,7 +99,7 @@ begin
                     next_state := execute;
                     opcode := to_func(ir(func_r));
                     rs <= (ir(rs0_r), ir(rs1_r));
-                    pc := (pc + 1) mod (addressable_mem'high + 1);
+                    pc := incr(pc);
                     address <= std_logic_vector(to_unsigned(pc, address'length));
 
                 -- Execute instruction
@@ -109,9 +114,9 @@ begin
                         when JMP =>
                             pc := to_integer(unsigned(ir));
                         when JEQ =>
-                            pc := to_integer(unsigned(ir)) when zero = '1' else (pc + 1) mod (addressable_mem'high + 1);
+                            pc := to_integer(unsigned(ir)) when zero = '1' else incr(pc);
                         when JGR =>
-                            pc := to_integer(unsigned(ir)) when signal_bit = '1' else (pc + 1) mod (addressable_mem'high + 1);
+                            pc := to_integer(unsigned(ir)) when signal_bit = '1' else incr(pc);
                         when DIN =>
                             waiting <= '1';
                             next_state := write_back when set = '1' else execute;
@@ -122,7 +127,7 @@ begin
                             alu_in(0) <= ops(0);
                             if rs(1) = imm then
                                 alu_in(1) <= ir;
-                                pc := (pc + 1) mod (addressable_mem'high + 1);
+                                pc := incr(pc);
                             else
                                 alu_in(1) <= ops(1);
                             end if;
@@ -135,7 +140,7 @@ begin
                     mem_write <= '1' when opcode = STORE else '0';
                     address <= alu_out;
 
-                -- Reset control signals and write back result to a given register
+                -- Reset control signals and write back result to a given register, if any
                 when others =>
                     next_state := fetch;
                     mem_write <= '0';

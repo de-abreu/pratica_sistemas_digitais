@@ -4,10 +4,10 @@ use ieee.numeric_std.all;
 use work.arrays_t.all;
 use work.instructions_t.all;
 
-entity cpu_tb is
-end entity cpu_tb;
+entity multiplication_tb is
+end entity multiplication_tb;
 
-architecture Behaviour of cpu_tb is
+architecture Behaviour of multiplication_tb is
     -- Signals for connecting to the CPU
     signal input, output  : std_logic_vector(inst_r);
     signal clk, set, rst  : std_logic := '0';

@@ -11,7 +11,7 @@ package instructions_t is
     -- Lengths and address to indicate immediate values
     constant inst_l : integer := 8;
     constant reg_l  : integer := 2;
-    -- Whenever rs2 assumes this value, load operator b with the next value stored in memory
+    -- Whenever rs1 assumes this value, load operator b with the next value stored in memory
     constant imm : std_logic_vector(1 downto 0) := "11";
 
     -- Ranges
@@ -34,12 +34,9 @@ package instructions_t is
         MOV, HALT
     );
 
-    -- Function encoding
-    attribute syn_encoding: string;
-    attribute syn_encoding of func: type is "0000 0001 0010 0011 0100 0101 0110 0111 1000 1001 1010 1011 1100 1101 1110, 1111";
-
     -- Conversion from std_logic_vector
     pure function to_func(vec : std_logic_vector(3 downto 0)) return func;
+    pure function incr(counter: addressable_mem) return addressable_mem;
 end package instructions_t;
 
 package body instructions_t is
@@ -47,4 +44,9 @@ package body instructions_t is
     begin
         return func'val(to_integer(unsigned(vec)));
     end function to_func;
+
+    pure function incr(counter: addressable_mem) return addressable_mem is
+    begin
+        return (counter + 1) mod (addressable_mem'high + 1);
+    end function incr;
 end package body instructions_t;
