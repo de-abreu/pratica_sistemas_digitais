@@ -1,0 +1,45 @@
+
+State Machine - |CentralProcessingUnit|alu_op
+Name alu_op.HALT alu_op.MOV alu_op.DOUT alu_op.DIN alu_op.STORE alu_op.LOAD alu_op.JGR alu_op.JEQ alu_op.JMP alu_op.LNOT alu_op.LOR alu_op.LAND alu_op.CMP alu_op.SUB alu_op.ADD alu_op.NOP 
+alu_op.NOP 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+alu_op.ADD 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+alu_op.SUB 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+alu_op.CMP 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+alu_op.LAND 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+alu_op.LOR 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+alu_op.LNOT 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+alu_op.JMP 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+alu_op.JEQ 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+alu_op.JGR 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+alu_op.LOAD 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+alu_op.STORE 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+alu_op.DIN 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+alu_op.DOUT 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+alu_op.MOV 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+alu_op.HALT 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+
+State Machine - |CentralProcessingUnit|\ControlUnit:opcode
+Name \ControlUnit:opcode.HALT \ControlUnit:opcode.MOV \ControlUnit:opcode.DOUT \ControlUnit:opcode.DIN \ControlUnit:opcode.STORE \ControlUnit:opcode.LOAD \ControlUnit:opcode.JGR \ControlUnit:opcode.JEQ \ControlUnit:opcode.JMP \ControlUnit:opcode.LNOT \ControlUnit:opcode.LOR \ControlUnit:opcode.LAND \ControlUnit:opcode.CMP \ControlUnit:opcode.SUB \ControlUnit:opcode.ADD \ControlUnit:opcode.NOP 
+\ControlUnit:opcode.NOP 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+\ControlUnit:opcode.ADD 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+\ControlUnit:opcode.SUB 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+\ControlUnit:opcode.CMP 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+\ControlUnit:opcode.LAND 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+\ControlUnit:opcode.LOR 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+\ControlUnit:opcode.LNOT 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+\ControlUnit:opcode.JMP 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+\ControlUnit:opcode.JEQ 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+\ControlUnit:opcode.JGR 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+\ControlUnit:opcode.LOAD 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+\ControlUnit:opcode.STORE 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+\ControlUnit:opcode.DIN 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+\ControlUnit:opcode.DOUT 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+\ControlUnit:opcode.MOV 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+\ControlUnit:opcode.HALT 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+
+State Machine - |CentralProcessingUnit|\ControlUnit:next_state
+Name \ControlUnit:next_state.write_back \ControlUnit:next_state.memory_access \ControlUnit:next_state.execute \ControlUnit:next_state.fetch 
+\ControlUnit:next_state.fetch 0 0 0 0 
+\ControlUnit:next_state.execute 0 0 1 1 
+\ControlUnit:next_state.memory_access 0 1 0 1 
+\ControlUnit:next_state.write_back 1 0 0 1 
