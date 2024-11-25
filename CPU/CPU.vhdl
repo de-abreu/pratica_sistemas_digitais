@@ -120,7 +120,7 @@ begin
                         when JGR =>
                             pc := to_integer(unsigned(ir)) when signal_bit = '1' else incr(pc);
                         when DIN =>
-                            waiting <= '0';
+                            waiting <= '1';
                             next_state := write_back when set = '1' else execute;
                         when DOUT =>
                             output <= ops(0);
@@ -146,7 +146,7 @@ begin
                 when others =>
                     next_state := fetch;
                     mem_write <= '0';
-                    waiting <= '1';
+                    waiting <= '0';
                     with opcode select
                         rd <= rs(0) when LOAD | DIN | MOV,
                               rd when STORE,
