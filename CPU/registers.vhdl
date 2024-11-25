@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.NUMERIC_STD.all;
-use work.arrays_t.all;
+use work.array_t.all;
 use work.instructions_t.all;
 
 entity Registers is

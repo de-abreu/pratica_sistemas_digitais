@@ -103,37 +103,37 @@ begin
 
                 -- Execute instruction
                 when execute =>
-						  case opcode is
-								when HALT | DIN =>
-									 next_state := execute;
-								when NOP | CMP | JMP | JEQ | JGR | DOUT =>
-									 next_state := fetch;
-								when LOAD | STORE =>
-									 next_state := memory_access;
-								when others =>
-									 next_state := write_back;
-						  end case;
+                    case opcode is
+                        when HALT | DIN =>
+                            next_state := execute;
+                        when NOP | CMP | JMP | JEQ | JGR | DOUT =>
+                            next_state := fetch;
+                        when LOAD | STORE =>
+                            next_state := memory_access;
+                        when others =>
+                            next_state := write_back;
+                    end case;
                     case opcode is
                         when NOP | HALT =>
                         when JMP =>
                             pc := to_integer(unsigned(ir));
                         when JEQ =>
-									 if zero = '1' then
-										  pc := to_integer(unsigned(ir));
-									 else
-										  pc := incr(pc);
-									 end if;
+                            if zero = '1' then
+                                pc := to_integer(unsigned(ir));
+                            else
+                                pc := incr(pc);
+                            end if;
                         when JGR =>
-									 if signal_bit = '1' then
-										  pc := to_integer(unsigned(ir));
-									 else
-										  pc := incr(pc);
-									 end if;
+                            if signal_bit = '1' then
+                                pc := to_integer(unsigned(ir));
+                            else
+                                pc := incr(pc);
+                            end if;
                         when DIN =>
                             waiting <= '1';
-									 if set = '1' then
-										  next_state := write_back;
-									 end if;
+                            if set = '1' then
+                                next_state := write_back;
+                            end if;
                         when DOUT =>
                             output <= ops(0);
                         when others =>
@@ -151,11 +151,11 @@ begin
                 -- Access memory to save or retrieve data
                 when memory_access =>
                     next_state := write_back;
-						  if opcode = STORE then
-							   mem_write <= '1';
-						  else
-								mem_write <= '0';
-						  end if;
+                        if opcode = STORE then
+                            mem_write <= '1';
+                        else
+                            mem_write <= '0';
+                        end if;
                     address <= alu_out;
 
                 -- Reset control signals and write back result to a given register, if any
@@ -163,21 +163,21 @@ begin
                     next_state := fetch;
                     mem_write <= '0';
                     waiting <= '0';
-						  case opcode is
-								when STORE =>
-								when LOAD =>
-									 rd <= rs(0);
-									 wb <= ir;
-								when DIN =>
-									 rd <= rs(0);
-									 wb <= input;
-								when MOV =>
-									 rd <= rs(0);
-									 wb <= alu_out;
-								when others =>
-									 rd <= "10";
-									 wb <= alu_out;
-						  end case;
+                    case opcode is
+                        when STORE =>
+                        when LOAD =>
+                            rd <= rs(0);
+                            wb <= ir;
+                        when DIN =>
+                            rd <= rs(0);
+                            wb <= input;
+                        when MOV =>
+                            rd <= rs(0);
+                            wb <= alu_out;
+                        when others =>
+                            rd <= "10";
+                            wb <= alu_out;
+                    end case;
                     address <= std_logic_vector(to_unsigned(pc, address'length));
             end case;
         end if;

@@ -22,7 +22,7 @@ package instructions_t is
     subtype addressable_mem is natural range 0 to 2 ** inst_l - 1;
     subtype addressable_reg is natural range 0 to 2 ** reg_l - 1;
     alias reg_r is rs1_r;
-	 
+
 	 -- std_logic_vector arrays
 	 type word_array is array (natural range <>) of STD_LOGIC_VECTOR(inst_r);
 	 type reg_array is array (natural range <>) of STD_LOGIC_VECTOR(reg_r);
