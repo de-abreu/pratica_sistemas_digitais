@@ -20,6 +20,8 @@ No diretório relativo a cada prática, há um documento especificando o tema ab
 
 5. Máquinas de estado finito
 
+6. CPU[^1]
+
 ## Autores
 
  | Nome                       | nUSP     |
@@ -28,3 +30,4 @@ No diretório relativo a cada prática, há um documento especificando o tema ab
  | João Vitor Naldoni         | 13748102 |
  | Jorge Salhani              | 8927418  |
 
+[^1]: Projeto de uma CPU com 8 bits de endereçamento.
