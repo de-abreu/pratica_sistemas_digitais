@@ -144,7 +144,7 @@ begin
 
                 -- Reset control signals and write back result to a given register, if any
                 when others =>
-                    next_state := fetch;
+                    next_state := write_back when opcode = DIN and set = '1' else fetch;
                     mem_write <= '0';
                     waiting <= '0';
                     with opcode select
