@@ -7,6 +7,7 @@ entity CentralProcessingUnit is
     port (
         input         : in  std_logic_vector(inst_r);
         clk, set, rst : in  std_logic;
+        hex           : in  hex_array(0 to 1);
         output        : out std_logic_vector(inst_r);
         waiting       : out std_logic
     );
@@ -50,6 +51,13 @@ architecture Structural of CentralProcessingUnit is
         );
     end component ArithmeticLogicUnit;
 
+    component HexDisplay is
+        port (
+            input       : in  std_logic_vector(3 downto 0);
+            hex_mapping : out std_logic_vector(0 to 6)
+         );
+    end component HexDisplay;
+
 begin
 
     -- Component instantiating
@@ -79,6 +87,19 @@ begin
             signal_bit => signal_bit,
             overflow   => overflow
         );
+
+    hex0: HexDisplay
+        port map (
+            input => input(3 downto 0),
+            hex_mapping <= hex(0)
+        );
+
+    hex1: HexDisplay
+        port map (
+            input => input(7 downto 4),
+            hex_mapping <= hex(1)
+        );
+
 
     ControlUnit: process(clk, rst)
         variable opcode : func;
@@ -160,7 +181,11 @@ begin
 
                 -- Reset control signals and write back result to a given register, if any
                 when others =>
-                    next_state := fetch;
+                    if opcode = DIN and set = '1' then
+                        next_state := write_back;
+                    else
+                        next_state := fetch;
+                    end if;
                     mem_write <= '0';
                     waiting <= '0';
                     case opcode is
