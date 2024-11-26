@@ -48,52 +48,55 @@ Mefisto possui apenas 3 registradores, denominados A, B e R. Estes são indicado
 
 #### NOP
 
-**Instrução:** `0 | X | X`
+**Exemplo:** `NOP`
+
+**Formato:** `0 | X | X`
 
 **Descrição:** Sem operação, isto é, descarta um ciclo de execução.
 
 #### ADD
 
-**Instrução:** `1 | rs0 | rs1/Imm`
+**Exemplo:** `ADD A B`
+
+**Formato:** `1 | rs0 | rs1/Imm`
 
 **Descrição:** Soma dois valores, ativa flags correspondentes, e atribui o resultado ao registrador `R`.
 
 #### SUB
 
-**Instrução:** `2 | rs0 | rs1/Imm`
+**Formato:** `2 | rs0 | rs1/Imm`
 
-**Exemplo:** 
+**Exemplo:**
 
 **Descrição:** Subtrai de `rs0` o valor `rs1/Imm`, ativa flags correspondentes, e atribui o resultado ao registrador `R`.
 
 #### CMP
 
-**Instrução:** `3 | rs0 | rs1/Imm`
+**Formato:** `3 | rs0 | rs1/Imm`
 
 **Descrição:** Subtrai de `rs0` o valor `rs1/Imm` e ativa flags correspondentes. Serve para comparar se o primeiro valor é maior ou igual ao segundo.
 
 #### LAND
 
-**Instrução:** `4 | rs0 | rs1/Imm`
+**Formato:** `4 | rs0 | rs1/Imm`
 
 **Descrição:** Aplica a operação E lógico entre dois valores, ativa flags correspondentes e atribui o resultado ao registrador `R`.
 
 #### LOR
 
-**Instrução:** `5 | rs0 | rs1/Imm`
+**Formato:** `5 | rs0 | rs1/Imm`
 
 **Descrição:** Aplica a operação OU lógico entre dois valores, ativa flags correspondentes e atribui o resultado ao registrador `R`.
 
 #### LNOT
 
-**Instrução:** `6 | rs0 | X`
+**Formato:** `6 | rs0 | X`
 
 **Descrição:** Aplica a operação de negação lógica a um valor, ativa flags correspondentes e atribui o resultado ao registrador `R`.
 
 #### JUMP
 
-
-**Instrução:** `7 | rs0 | X`
+**Formato:** `7 | rs0 | X`
 
 **Descrição:** Aplica a operação de negação lógica a um valor, ativa flags correspondentes e atribui o resultado ao registrador `R`.
 
