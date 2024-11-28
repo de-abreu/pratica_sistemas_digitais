@@ -333,24 +333,12 @@ def build_instrucoes_t_file(program_name, instructions, template):
   return instructions_t_content
 
 
-program_name = "MULTIPLY_PROGRAM"
-program_instructions = """
-IN A
-IN B
-MOV R , 0
-LOOP_START :
-CMP B , 0
-JEQ END_LOOP
-ADD R , A
-STORE R 255
-SUB B , 1
-MOV B , R
-LOAD R , 255
-JMP LOOP_START
-END_LOOP :
-OUT R
-WAIT
-"""
+program_name = input("Nome do programa: ")
+file_instructions_path = input('Caminho do arquivo (txt) de instruções: ')
+
+file_instructions = open(file_instructions_path)
+
+program_instructions = ''.join(file_instructions.readlines())
 
 mem_file_txt = build_program_memory_file(program_name, memory_template)
 # print(mem_file_txt)
