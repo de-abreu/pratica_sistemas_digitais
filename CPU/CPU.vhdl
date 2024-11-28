@@ -89,7 +89,7 @@ begin
         if rst = '1' then
             output <= (others => '0');
             mem_write <= '0';
-            waiting <= '1';
+            waiting <= '0';
             next_state := fetch;
             pc := 0;
             address <= std_logic_vector(to_unsigned(pc, address'length));
