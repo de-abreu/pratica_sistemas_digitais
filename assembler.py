@@ -25,7 +25,7 @@ def formatInst(address: int, data: int, inst: str, prev_inst: str) -> str:
     )
 
 
-def fetchReg(args: str, index: int) -> int:
+def fetchReg(line: int, args: str, index: int) -> int:
     REGISTERS = ["a", "b", "r"]
     try:
         return REGISTERS.index(args.split()[index])
@@ -36,7 +36,7 @@ def fetchReg(args: str, index: int) -> int:
     exit(1)
 
 
-def fetchLabel(args: str) -> str:
+def fetchLabel(line: int, args: str) -> str:
     try:
         return args.split()[0]
     except IndexError:
@@ -63,14 +63,14 @@ with open(argv[1], "r") as program:
         "mov",
         "wait",
     ]
+    lines = program.readlines()
 
-    for instruction in program.readlines():
-        instruction = instruction.strip()
+    for i in range(len(lines)):
+        instruction = lines[i].strip()
         func, _, args = instruction.lower().partition(" ")
         match func:
             # A blank line or a comment
             case "" | ";":
-                line += 1
                 continue
 
             # A label
@@ -80,7 +80,6 @@ with open(argv[1], "r") as program:
                 entry = label_dict.get(label, [count, []])
                 entry[0] = count
                 label_dict[label] = entry
-                line += 1
                 continue
 
             # A function that take no arguments
@@ -102,14 +101,14 @@ with open(argv[1], "r") as program:
                 )
                 count += 1
                 line += 1
-                label = fetchLabel(args)
+                label = fetchLabel(i, args)
                 entry = label_dict.get(label, [None, []])
                 entry[1].append(count)
                 label_dict[label] = entry
 
             # Functions that take a single register as an argument
             case "not" | "in" | "out":
-                rs0 = fetchReg(args, 0)
+                rs0 = fetchReg(i, args, 0)
                 instruction_list[count] = formatInst(
                     count,
                     16 * FUNCTIONS.index(func) + 4 * rs0,
@@ -119,7 +118,7 @@ with open(argv[1], "r") as program:
 
             # Functions that a register and another register or immediate value as arguments
             case "add" | "sub" | "cmp" | "and" | "or" | "load" | "store" | "mov":
-                rs0 = fetchReg(args, 0)
+                rs0 = fetchReg(i, args, 0)
                 try:
                     rs1 = args.split()[1]
                     if rs1.isnumeric():
@@ -136,19 +135,18 @@ with open(argv[1], "r") as program:
                     else:
                         instruction_list[count] = formatInst(
                             count,
-                            16 * FUNCTIONS.index(func) + 4 * rs0 + fetchReg(args, 1),
+                            16 * FUNCTIONS.index(func) + 4 * rs0 + fetchReg(i, args, 1),
                             instruction,
                             instruction_list[count],
                         )
                 except IndexError:
-                    print(f"Missing argument at line {line}: {instruction}")
+                    print(f"Missing argument at line {i}: {instruction}")
                     exit(1)
 
             case _:
-                print(f'Invalid operation "{func}" at line {line}: {instruction}')
+                print(f'Invalid operation "{func}" at line {i}: {instruction}')
                 exit(1)
 
-        line += 1
         count += 1
 
     # Assign after every jump instruction the location of the label it was assigned to.
