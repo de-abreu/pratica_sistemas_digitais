@@ -244,7 +244,7 @@ A UC é responsável por controlar o fluxo de dados de acordo com as instruçõe
 
 O seguinte diagrama esquematiza estas etapas de execução e os componentes envolvidos em cada uma destas:
 
-![Pipeline de execução da CPU](./images/CPU Pipeline.png)
+![Pipeline de execução da CPU](./images/cpu_pipeline.png)
 
 A notável exceção do canônico estágio de decodificação (Decode) se faz presente porque todas as instruções implementadas por Mefisto seguem um mesmo formato. Prescindindo a necessidade de identificar os componentes da instrução.
 
