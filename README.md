@@ -14,26 +14,21 @@ O presente documento descreve o projeto de um processador com 8 bits de endereç
 
 ## Sumário
 
-1. Instruções de máquina
-
-   1. Entradas e Saídas
-   2. Formato de instrução
-   3. Instruções implementadas
-   4. Endereçamento dos registradores
-
-2. Arquitetura da CPU
-
-   1. Componentes
-   2. Unidade de Controle e diagrama esquemático do circuíto
-   3. Unidade Lógico-Aritmética
-   4. Banco de registadores e Memória Primária
-
-3. Instruções de Uso
-
-   1. Dependências e considerações iniciais
-   2. Gerando programas com o montador
-   3. Gerando um testbench para teste da CPU
-   4. Gerando uma simulação visualizando os resultados desta
+1. [**Instruções de máquina**](#instruções-de-máquina)
+    * 1.1. [Entradas e Saídas](#entradas-e-saídas)
+    * 1.2. [Formato de instrução](#formato-de-instrução)
+    * 1.3. [Instruções implementadas](#instruções-implementadas)
+    * 1.4. [Endereçamento dos registradores](#endereçamento-dos-registradores)
+2. [**Arquitetura da CPU**](#arquitetura-da-cpu)
+    * 2.1. [Componentes](#componentes)
+    * 2.2. [Unidade de Controle e diagrama esquemático do circuito](#unidade-de-controle-e-diagrama-esquemático-do-circuíto)
+    * 2.3. [Unidade Lógico-Aritmética](#unidade-lógico-aritmética)
+    * 2.4. [Banco de registradores e Memória primária](#banco-de-registradores-e-memória-primária)
+3. [**Instruções de Uso**](#instruções-de-uso)
+    * 3.1. [Dependências e considerações iniciais](#dependências-e-considerações-iniciais)
+    * 3.2. [Gerando programas com o montador](#gerando-programas-com-o-montador)
+    * 3.3. [Gerando um testbench para teste da CPU](#gerando-um-testbench-para-teste-da-cpu)
+    * 3.4. [Gerando uma simulação visualizando os resultados desta](#gerando-uma-simulação-visualizando-os-resultados-desta)
 
 ## Instruções de máquina
 
@@ -350,7 +345,7 @@ Selecionando um deles, seus respectivos sinais internos são listados sob `Signa
 
 Inicialmente, a exibição da onda encontra-se na escala de femtosegundos, uma unidade bastante breve de tempo (um quadrilhésimo de segundo) para os propósitos de uma CPU. Recomenda-se aumentar o intervalo para a escala de nanosegundos usando o atalho `Ctrl+-`.
 
-![Escala de tempo corrigida](./images/4,png)
+![Escala de tempo corrigida](./images/4.png)
 
 Ajustada a escala de tempo, continue a inserir sinais os quais julgar relevantes à exibição. A ordem em que estes são exibidos também pode ser ajustada arrastando-os a posição desejada na listagem.
 
