@@ -31,8 +31,8 @@ O presente documento descreve o projeto de um processador com 8 bits de endereç
 3. Instruções de Uso
 
    1. Gerando programas com o montador
-   2. Carregando programas na memória, e gerando um testbench para teste da CPU
-   3. Compilando os arquivos para simulação com GHDL
+   2. Gerando um testbench para teste da CPU
+   3. Gerando uma simulação com GHDL
    4. Uso da interface GTKWave para avaliação do teste da CPU
 
 ## Instruções de máquina
@@ -269,6 +269,58 @@ A implementação da memória foi feita de maneira a comportar as mesmas entrada
 
 ## Instruções de Uso
 
-Antes de prosseguir nas etapas seguintes faz-se necessária a instalação das ferramentas `python`, `ghdl` e `gtkwave`. Recomenda-se obtê-las por meio do gerenciador de pacotes recomendado pela sua distribuição Linux. Também recomenda-se um editor de
+Antes de prosseguir nas etapas seguintes faz-se necessária a instalação das ferramentas `python`, `ghdl` e `gtkwave`. Recomenda-se obtê-las por meio do gerenciador de pacotes recomendado pela sua distribuição Linux. Também recomenda-se um editor de texto adequado a escrita nas linguagens `vhdl` e `asm` como o [LunarVim](https://www.lunarvim.org/).
 
-### Gerando programas como
+### Gerando programas como montador
+
+Escreva um programa a ser executado e salve-o em um arquivo. Tal como o seguinte programa de exemplo:
+
+```asm
+
+; Programa salvo em um arquivo nomeado "multiply.asm"
+
+IN A
+IN B
+MOV R 0
+LOOP_START:
+    CMP B 0
+    JEQ LOOP_END
+    ADD R A
+    STORE R 255
+    SUB B 1
+    MOV B R
+    LOAD R 255
+    JMP LOOP_START
+LOOP_END:
+    OUT R
+    WAIT
+```
+
+Note algumas características deste código:
+
+- Comentários são acrescentados após o marcador `;`
+- Indentação é utilizada de forma liberal, ainda que não implique em qualquer funcionalidade.
+- **Funções e argumentos são separados entre si por espaços**, diferentemente doutras linguagens de montagem que utilizam vírgulas para este mesmo propósito.
+
+O uso do compilador `assembler.py`, da seguinte forma:
+
+```sh
+python assembler.py multiply.asm
+```
+
+Gera os arquivos `multiply_t.vhdl` e `memory.vhdl` na mesma pasta em que o comando foi invocado. O primeiro refere-se ao programa gerado, enquanto o segundo refere-se a descrição da memória com este mesmo programa nela carregado.
+
+### Gerando um testbench para teste da CPU
+
+Para realização de uma simulação da execução da CPU, utiliza-se de um arquivo denominado "testbench" para descrever quaisquer sequências de entradas atuada sobre esta (denominada UUT: "*Unit Under Test*"). Assim como realizar a captura de quaisquer sinais de saída, ou internos, a mesma.
+
+Um exemplo de testbench está descrito no arquivo [cpu_tb.vhdl](./cpu_tb.vhdl). Observe nesta a existência de dois processos:
+
+- `clk_process`: Descreve a geração do pulso regular de um *clock*. Esta porção do testbench tende a não se alterar entre diferentes testes.
+- `stimulation`: Descreve a emissão de sinais para a CPU, as quais podem estar intervaladas entre si. **Esta é a porção do código que necessita ser alterada em função do teste sendo realizado**.
+
+Comum a ambos estes processos está a constante **period**, que pode assumir qualquer valor previsto tipo `time`.
+
+### Gerando uma simulação com GHDL
+
+

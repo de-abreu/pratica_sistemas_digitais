@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.NUMERIC_STD.all;
 use work.array_t.all;
 use work.instructions_t.all;
-use work.programs_t.all;
+use work.multiply_t.all;
 
 entity Memory is
     port (

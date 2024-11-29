@@ -61,10 +61,7 @@ begin
         wait for 3 * period;
         set <= '0';
 
-        -- Wait for the CPU to finish executing
-        wait for 100 * period;
-
-        -- End simulation
+        -- Wait for the end of the simulation
         wait;
     end process stimulation;
 end architecture Behaviour;
