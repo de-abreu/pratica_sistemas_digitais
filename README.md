@@ -1,4 +1,4 @@
-# Relatório: Projeto de uma CPU de 8-bits
+# Mefisto: Projeto de uma CPU de 8-bits
 
 ## Autores
 
