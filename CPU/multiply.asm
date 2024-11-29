@@ -1,3 +1,5 @@
+; An example of a program, that multiplies inputs provided.
+
 IN A
 IN B
 MOV R 0

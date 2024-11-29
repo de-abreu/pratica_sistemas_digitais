@@ -2,10 +2,9 @@
 
 from sys import argv, exit
 from os.path import splitext, basename
-import re
 
 """
-Compiler for the Mefisto CPU assembly language. Generates vhdl files describing the program read and the primary memory loaded with it.
+Assembler for the Mefisto CPU assembly language. Generates vhdl files describing the program read and the primary memory loaded with it.
 
 Usage: python compiler.py <program>.asm
 """
@@ -17,11 +16,32 @@ if len(argv) != 2:
 program_name = splitext(basename(argv[1]))[0]
 instruction_list = [""] * 256
 label_dict = {}
-count = 0
+count = line = 0
 
 
-def formatInst(count: int, hex_str: str, inst: str, prev_inst: str) -> str:
-    return f'\t\t{count} => x"{hex_str}", -- {inst} {prev_inst}'.rstrip()
+def formatInst(address: int, data: int, inst: str, prev_inst: str) -> str:
+    return (
+        f'\t\t{address:<3} => x"{format(data, "02X")}", -- {inst} {prev_inst}'.rstrip()
+    )
+
+
+def fetchReg(args: str, index: int) -> int:
+    REGISTERS = ["a", "b", "r"]
+    try:
+        return REGISTERS.index(args.split()[index])
+    except IndexError:
+        print(f"Missing target register at line {line}: {instruction}")
+    except ValueError:
+        print(f"Invalid register defined at line {line} : {instruction}")
+    exit(1)
+
+
+def fetchLabel(args: str) -> str:
+    try:
+        return args.split()[0]
+    except IndexError:
+        print(f"Missing target label at line {line}: {instruction}")
+    exit(1)
 
 
 with open(argv[1], "r") as program:
@@ -43,96 +63,98 @@ with open(argv[1], "r") as program:
         "mov",
         "wait",
     ]
-    REGISTERS = ["a", "b", "r"]
 
-    while instruction := program.readline().strip():
+    for instruction in program.readlines():
+        instruction = instruction.strip()
         func, _, args = instruction.lower().partition(" ")
         match func:
-            # A comment
-            case ";":
+            # A blank line or a comment
+            case "" | ";":
+                line += 1
                 continue
 
             # A label
-            case string if re.search(r":$", string):
-                label = func[:-1]
-                instruction_list[count] = f" ({label})"
-                entry = label_dict.get(label, [None, []])
+            case label if label[-1] == ":":
+                instruction_list[count] = f"({instruction.split(":")[0]})"
+                label = label[:-1]
+                entry = label_dict.get(label, [count, []])
                 entry[0] = count
                 label_dict[label] = entry
+                line += 1
                 continue
 
-            # Functions that take no arguments
+            # A function that take no arguments
             case "nop" | "wait":
                 instruction_list[count] = formatInst(
                     count,
-                    format(16 * FUNCTIONS.index(func), "02X"),
+                    16 * FUNCTIONS.index(func),
                     instruction,
                     instruction_list[count],
                 )
 
-            # Functions that take a label as an argument
+            # A function that takes a label as an argument
             case "jmp" | "jeq" | "jgr":
                 instruction_list[count] = formatInst(
                     count,
-                    format(16 * FUNCTIONS.index(func), "02X"),
+                    16 * FUNCTIONS.index(func),
                     instruction,
                     instruction_list[count],
                 )
                 count += 1
-                label = args.split()[0]
+                line += 1
+                label = fetchLabel(args)
                 entry = label_dict.get(label, [None, []])
                 entry[1].append(count)
                 label_dict[label] = entry
 
             # Functions that take a single register as an argument
             case "not" | "in" | "out":
-                rs0 = args.split()[0]
+                rs0 = fetchReg(args, 0)
                 instruction_list[count] = formatInst(
                     count,
-                    format(
-                        16 * FUNCTIONS.index(func) + 4 * REGISTERS.index(rs0), "02X"
-                    ),
+                    16 * FUNCTIONS.index(func) + 4 * rs0,
                     instruction,
                     instruction_list[count],
                 )
 
             # Functions that a register and another register or immediate value as arguments
+            case "add" | "sub" | "cmp" | "and" | "or" | "load" | "store" | "mov":
+                rs0 = fetchReg(args, 0)
+                try:
+                    rs1 = args.split()[1]
+                    if rs1.isnumeric():
+                        instruction_list[count] = formatInst(
+                            count,
+                            16 * FUNCTIONS.index(func) + 4 * rs0 + 3,
+                            instruction,
+                            instruction_list[count],
+                        )
+                        count += 1
+                        instruction_list[count] = formatInst(
+                            count, int(rs1), str(rs1), ""
+                        )
+                    else:
+                        instruction_list[count] = formatInst(
+                            count,
+                            16 * FUNCTIONS.index(func) + 4 * rs0 + fetchReg(args, 1),
+                            instruction,
+                            instruction_list[count],
+                        )
+                except IndexError:
+                    print(f"Missing argument at line {line}: {instruction}")
+                    exit(1)
+
             case _:
-                rs0, rs1 = args.split()[:2]
-                if rs1.isnumeric():
-                    instruction_list[count] = formatInst(
-                        count,
-                        format(
-                            16 * FUNCTIONS.index(func) + 4 * REGISTERS.index(rs0) + 3,
-                            "02X",
-                        ),
-                        instruction,
-                        instruction_list[count],
-                    )
-                    count += 1
-                    instruction_list[count] = formatInst(
-                        count, format(int(rs1), "02X"), str(rs1), ""
-                    )
-                else:
-                    instruction_list[count] = formatInst(
-                        count,
-                        format(
-                            16 * FUNCTIONS.index(func)
-                            + 4 * REGISTERS.index(rs0)
-                            + REGISTERS.index(rs1),
-                            "02X",
-                        ),
-                        instruction,
-                        instruction_list[count],
-                    )
+                print(f'Invalid operation "{func}" at line {line}: {instruction}')
+                exit(1)
+
+        line += 1
         count += 1
 
-    # Assign after every jump instruction position the location of the label it was assigned to.
+    # Assign after every jump instruction the location of the label it was assigned to.
     for _, values in label_dict.items():
         for source in values[1]:
-            instruction_list[source] = formatInst(
-                source, format(values[0], "02X"), str(values[0]), ""
-            )
+            instruction_list[source] = formatInst(source, values[0], str(values[0]), "")
 
 with open("memory.vhdl", "w") as memory:
     contents = f"""library ieee;
