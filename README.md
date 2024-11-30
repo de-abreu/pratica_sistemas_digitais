@@ -1,4 +1,4 @@
-# Mefisto: Projeto de uma CPU de 8-bits
+# Mephisto: Projeto de uma CPU de 8-bits
 
 ## Autores
 
@@ -10,7 +10,7 @@
 
 ## Resumo
 
-O presente documento descreve o projeto de um processador com 8 bits de endereçamento, denominado **Mefisto**. Iniciamos por definir as instruções de máquina que este comporta, seus componentes e arquitetura, assim como as decisões de projeto tomadas na formulação destes. No mais, ao final fornecemos as instruções necessárias para o uso de seu montador para a criação de novos programas para o processador e a realização da simulação de sua operação fazendo uso de um montador escrito em Python, o simulador [GHDL](http://ghdl.free.fr/) e a interface [GTKWave](https://github.com/gtkwave/gtkwave), programas estes prontamente disponíveis para instalação em uma variedade de distribuições Linux.
+O presente documento descreve o projeto de um processador com 8 bits de endereçamento, denominado **Mephisto**. Iniciamos por definir as instruções de máquina que este comporta, seus componentes e arquitetura, assim como as decisões de projeto tomadas na formulação destes. No mais, ao final fornecemos as instruções necessárias para o uso de seu montador para a criação de novos programas para o processador e a realização da simulação de sua operação fazendo uso de um montador escrito em Python, o simulador [GHDL](http://ghdl.free.fr/) e a interface [GTKWave](https://github.com/gtkwave/gtkwave), programas estes prontamente disponíveis para instalação em uma variedade de distribuições Linux.
 
 ## Sumário
 
@@ -34,7 +34,7 @@ O presente documento descreve o projeto de um processador com 8 bits de endereç
 
 ### Entradas e saídas
 
-Encontram-se especificadas as seguintes entradas e saídas para a CPU Mefisto:
+Encontram-se especificadas as seguintes entradas e saídas para a CPU Mephisto:
 
 ```vhdl
 entity CentralProcessingUnit is
@@ -51,7 +51,7 @@ Os nomes dos sinais seguem convenções vistas em circuitos elétricos. Os princ
 
 ### Formato de instrução
 
-Mefisto faz uso de um único formato de instrução fixado como:
+Mephisto faz uso de um único formato de instrução fixado como:
 
 | func    | rs0 | rs1/Imm |
 |:------- |:--- |:------- |
@@ -68,9 +68,9 @@ Na descrição das instruções, utilizamos um par de dígitos hexadecimais, por
 
 ### Instruções implementadas
 
-Mefisto implementa 16 funções, as quais são listadas a seguir. Quando estas podem, ou devem, comportar um valor imediato, estas estão seguidas de `> Imm` para identificar a presença deste na posição de memória seguinte àquela em que a instrução foi lida.
+Mephisto implementa 16 funções, as quais são listadas a seguir. Quando estas podem, ou devem, comportar um valor imediato, estas estão seguidas de `> Imm` para identificar a presença deste na posição de memória seguinte àquela em que a instrução foi lida.
 
-No mais, Mefisto possui apenas 3 registradores, denominados A, B e R. Estes são indicados, respectivamente, com os pares de bits `00`, `01` e `10`. Nem todas as instruções fazem uso de um ou dois operadores, nestes casos fica indicado nas instruções abaixo com `X` quando os bits não são utilizados.
+No mais, Mephisto possui apenas 3 registradores, denominados A, B e R. Estes são indicados, respectivamente, com os pares de bits `00`, `01` e `10`. Nem todas as instruções fazem uso de um ou dois operadores, nestes casos fica indicado nas instruções abaixo com `X` quando os bits não são utilizados.
 
 #### NOP
 
@@ -224,11 +224,11 @@ As seguintes combinações de registradores e valores imediatos são possíveis:
 
 ### Componentes
 
-Mefisto integra uma Unidade de Controle (UC), uma Unidade Lógico-Aritmética (ULA), um banco de registradores e uma memória primária. Além de alguns registradores auxiliares.
+Mephisto integra uma Unidade de Controle (UC), uma Unidade Lógico-Aritmética (ULA), um banco de registradores e uma memória primária. Além de alguns registradores auxiliares.
 
 ### Unidade de Controle e diagrama esquemático do circuíto
 
-A UC é responsável por controlar o fluxo de dados de acordo com as instruções lidas e realizar a passagem entre os diferentes estágios de execução da CPU. Esta está descrita enquanto um processo no arquivo [CPU.vhdl](./CPU.vhdl). Os estágios de execução implementados em Mefisto são:
+A UC é responsável por controlar o fluxo de dados de acordo com as instruções lidas e realizar a passagem entre os diferentes estágios de execução da CPU. Esta está descrita enquanto um processo no arquivo [CPU.vhdl](./CPU.vhdl). Os estágios de execução implementados em Mephisto são:
 
 - **Fetch (Buscar):** Atribui ao registrador de instrução o valor na memória apontado pelo Program Counter, e incrementa este último; Direciona as porções de bits relevantes a função a UC e relevantes aos registradores ao banco de registradores.
 
@@ -246,7 +246,7 @@ O seguinte diagrama esquematiza estas etapas de execução e os componentes envo
 
 ![Pipeline de execução da CPU](./images/cpu_pipeline.png)
 
-A notável exceção do canônico estágio de decodificação (Decode) se faz presente porque todas as instruções implementadas por Mefisto seguem um mesmo formato. Prescindindo a necessidade de identificar os componentes da instrução.
+A notável exceção do canônico estágio de decodificação (Decode) se faz presente porque todas as instruções implementadas por Mephisto seguem um mesmo formato. Prescindindo a necessidade de identificar os componentes da instrução.
 
 ### Unidade Lógico-Aritmética
 
@@ -271,7 +271,7 @@ A implementação da memória foi feita de maneira a comportar as mesmas entrada
 Antes de prosseguir nas etapas seguintes, note:
 
 1. faz-se necessária a instalação das ferramentas `make`, `python`, `ghdl` e `gtkwave`. Recomenda-se obtê-las por meio do gerenciador de pacotes recomendado pela sua distribuição Linux. Também recomenda-se um editor de texto adequado a escrita nas linguagens `vhdl` e `asm` como o [LunarVim](https://www.lunarvim.org/).
-2. Para cada novo programa a ser testado será necessário primeiro escrevê-lo em um arquivo `.asm` e possuir um arquivo de testbench compatível. A geração destes será explicada a seguir. Após isso ter sido feito, Mefisto possui um Makefile que realiza todas as etapas necessárias para a geração de uma simulação e visualização dos resultados desta, o qual pode ser utilizado com o seguinte comando:
+2. Para cada novo programa a ser testado será necessário primeiro escrevê-lo em um arquivo `.asm` e possuir um arquivo de testbench compatível. A geração destes será explicada a seguir. Após isso ter sido feito, Mephisto possui um Makefile que realiza todas as etapas necessárias para a geração de uma simulação e visualização dos resultados desta, o qual pode ser utilizado com o seguinte comando:
 
 ```sh
 make PROGRAM="multiply.asm" TESTBENCH="cpu_tb.vhdl" TIME="4us"

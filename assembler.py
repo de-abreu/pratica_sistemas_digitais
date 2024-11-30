@@ -4,7 +4,7 @@ from sys import argv, exit
 from os.path import splitext, basename
 
 """
-Assembler for the Mefisto CPU assembly language. Generates vhdl files describing the program read and the primary memory loaded with it.
+Assembler for the Mephisto CPU assembly language. Generates vhdl files describing the program read and the primary memory loaded with it.
 
 Usage: python compiler.py <program>.asm
 """
