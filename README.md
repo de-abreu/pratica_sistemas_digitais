@@ -252,6 +252,8 @@ A notável exceção do canônico estágio de decodificação (Decode) se faz pr
 
 A ULA está descrita no arquivo [ALU.vhdl](./ALU.vhdl). Esta implementa as funcionalidades de soma, subtração, algumas operações lógicas e a opção para se repassar inalterado um valor imediato recebido. Esta também emite sinais indicativos de um resultado nulo (`zero`), positivo ou negativo (`signal_bit`).
 
+As operações aritméticas assumem e produzem valores correspondentes a **números inteiros com sinal**:  entre 127 e -128.
+
 ### Banco de registradores e Memória primária
 
 Estes encontram-se descritos, respectivamente, nos arquivos [registers.vhdl](./registers.vhdl) e [memory.vhdl](./memory.vhdl). A implementação destes é bastante similar. As principais diferenças entre estes é:
