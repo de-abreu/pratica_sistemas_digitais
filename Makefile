@@ -1,11 +1,11 @@
 PROGRAM ?= "program.asm"
-TESTBENCH ?= "cpu_tb.vhdl"
+TESTBENCH ?= $(basename $($PROGRAM)).vhdl
 TIME ?= "4us"
 ENTITY = $(basename $(TESTBENCH))
-WAVE = $(basename $($PROGRAM))
+WAVE = $(basename $($PROGRAM)).ghw
 
 .PHONY: all
-all:
+all: $(PROGRAM) $(TESTBENCH)
 	python assembler.py $(PROGRAM)
 	ghdl -a --std=08 *_t.vhdl registers.vhdl memory.vhdl ALU.vhdl CPU.vhdl $(TESTBENCH)
 	ghdl -e --std=08 $(ENTITY)
