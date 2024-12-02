@@ -1,19 +1,17 @@
 ; An example of a program, that divides the first input for the second one.
 
-IN A
-IN B
-MOV R 0
-STORE R 255
-LOOP_START:
-    MOV R A
-    SUB R B
-    MOV A R
-    LOAD R 255
-    ADD R 1
-    STORE R 255
-    MOV R A
-    CMP R B
-    JGR LOOP_START
-LOAD R 255
-OUT R
-WAIT
+in a
+in b
+mov r 0
+loop_start:
+    cmp b a
+    jgr loop_end
+    store r 255
+    sub a b
+    mov a r
+    load r 255
+    add r 1
+    jmp loop_start
+loop_end:
+    out r
+    wait

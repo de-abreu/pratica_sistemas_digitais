@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.NUMERIC_STD.all;
 use work.array_t.all;
 use work.instructions_t.all;
-use work.multiply_t.all;
+use work.divide_t.all;
 
 entity Memory is
     port (
@@ -14,7 +14,7 @@ entity Memory is
 end entity Memory;
 
 architecture Behaviour of Memory is
-    signal mem : program := multiply;
+    signal mem : program := divide;
 
     --Division program
     signal index : addressable_mem;
