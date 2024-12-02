@@ -252,7 +252,7 @@ A notável exceção do canônico estágio de decodificação (Decode) se faz pr
 
 A ULA está descrita no arquivo [ALU.vhdl](./ALU.vhdl). Esta implementa as funcionalidades de soma, subtração, algumas operações lógicas e a opção para se repassar inalterado um valor imediato recebido. Esta também emite sinais indicativos de um resultado nulo (`zero`), positivo ou negativo (`signal_bit`).
 
-As operações aritméticas assumem e produzem valores correspondentes a **números inteiros com sinal**:  entre 127 e -128.
+As operações aritméticas assumem e produzem valores correspondentes a **números inteiros sem sinal**:  entre 0 e 255 (inclusos).
 
 ### Banco de registradores e Memória primária
 
@@ -309,7 +309,7 @@ LOOP_END:
 Note algumas características deste código:
 
 - Comentários são acrescentados após o marcador `;`.
-- Indentação é utilizada de forma liberal, ainda que não implique em qualquer funcionalidade.
+- Indentação, linhas em branco, e caixa alta pode ser utilizada de forma liberal: não implicam em qualquer alteração de funcionalidade.
 - **Funções e argumentos são separados entre si por espaços**, diferentemente doutras linguagens de montagem que utilizam vírgulas para este mesmo propósito.
 
 O uso do compilador `assembler.py` é feito da seguinte forma:
