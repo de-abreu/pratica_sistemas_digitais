@@ -51,7 +51,7 @@ begin
         rst <= '0';
 
         -- Send input
-        input <= x"05";
+        input <= x"23";
         set <= '1';
         wait for 3 * period;
         set <= '0';

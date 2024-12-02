@@ -118,7 +118,7 @@ begin
                         when JEQ =>
                             pc := to_integer(unsigned(ir)) when zero = '1' else incr(pc);
                         when JGR =>
-                            pc := to_integer(unsigned(ir)) when signal_bit = '1' else incr(pc);
+                            pc := to_integer(unsigned(ir)) when signal_bit = '0' else incr(pc);
                         when DIN =>
                             waiting <= '1';
                             next_state := write_back when set = '1' else execute;
