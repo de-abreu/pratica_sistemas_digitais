@@ -1,5 +1,7 @@
 # Mephisto: Projeto de uma CPU de 8-bits
 
+**Translation Note:** This is the Portuguese version of the README. [View the English version](README_EN.md)
+
 ## Autores
 
 | Nome                       | nUSP     |
@@ -10,7 +12,7 @@
 
 ## Resumo
 
-O presente documento descreve o projeto de um processador com 8 bits de endereçamento, denominado **Mephisto**. Iniciamos por definir as instruções de máquina que este comporta, seus componentes e arquitetura, assim como as decisões de projeto tomadas na formulação destes. No mais, ao final fornecemos as instruções necessárias para o uso de seu montador para a criação de novos programas para o processador e a realização da simulação de sua operação fazendo uso de um montador escrito em Python, o simulador [GHDL](http://ghdl.free.fr/) e a interface [GTKWave](https://github.com/gtkwave/gtkwave), programas estes prontamente disponíveis para instalação em uma variedade de distribuições Linux.
+O presente documento descreve o projeto de um processador com 8 bits de endereçamento, denominado **Mephisto**. Iniciamos por definir as instruções de máquina que este comporta, seus componentes e arquitetura, assim como as decisões de projeto tomadas na formulação destes. Fornecemos as instruções necessárias para o uso de seu montador para a criação de novos programas e a realização de simulações de sua operação. Para tal, fazemos uso do interpretator Python, o simulador [GHDL](http://ghdl.free.fr/) e a interface [GTKWave](https://github.com/gtkwave/gtkwave); programas estes prontamente disponíveis para instalação em uma variedade de distribuições Linux.
 
 ## Sumário
 
@@ -47,7 +49,11 @@ entity CentralProcessingUnit is
 end entity CentralProcessingUnit;
 ```
 
-Os nomes dos sinais seguem convenções vistas em circuitos elétricos. Os principais diferenciais é a definição de `inst_r` como sendo a largura de instrução de 8-bits, e o uso de um output "waiting" para indicar que a CPU está aguardando o input do usuário, a ser digitado em `input` e confirmado com `set`.
+Os nomes dos sinais seguem convenções vistas em circuitos elétricos. Os principais diferenciais são:
+
+- a definição de `inst_r` como sendo a largura de instrução de 8-bits
+
+- o uso de um output "waiting" para indicar que a CPU está aguardando o input do usuário, a ser digitado em `input` e confirmado com `set`.
 
 ### Formato de instrução
 
@@ -70,13 +76,13 @@ Na descrição das instruções, utilizamos um par de dígitos hexadecimais, por
 
 Mephisto implementa 16 funções, as quais são listadas a seguir. Quando estas podem, ou devem, comportar um valor imediato, estas estão seguidas de `> Imm` para identificar a presença deste na posição de memória seguinte àquela em que a instrução foi lida.
 
-No mais, Mephisto possui apenas 3 registradores, denominados A, B e R. Estes são indicados, respectivamente, com os pares de bits `00`, `01` e `10`. Nem todas as instruções fazem uso de um ou dois operadores, nestes casos fica indicado nas instruções abaixo com `X` quando os bits não são utilizados.
+Mephisto possui apenas 3 registradores, denominados A, B e R. Estes são indicados, respectivamente, com os pares de bits `00`, `01` e `10`. Nem todas as instruções fazem uso de um ou dois operadores, nestes casos fica indicado nas instruções abaixo com `X` quando os bits não são utilizados.
 
 #### NOP
 
 **Exemplo:** `NOP`
 
-**Formato:** `0 | X | X > Imm`
+**Formato:** `0 | X | X`
 
 **Descrição:** Sem operação; isto é, descarta um ciclo de execução.
 
